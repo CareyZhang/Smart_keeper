@@ -56,7 +56,7 @@
 		}
 	}while(mysqli_next_result($conn));
 ?>
-<body <?php body_class(); ?> onload="init('<?=$upper?>','<?=$lower?>')">
+<body <?php body_class(); ?> onload="init('<?=$upper-1?>','<?=$lower?>')">
 <div id="body-core" class="hfeed site">
 
 	<header>

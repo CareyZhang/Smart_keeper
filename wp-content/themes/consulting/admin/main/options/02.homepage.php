@@ -302,35 +302,7 @@ $thinkup_homepage_section3_link  = consulting_thinkup_var ( 'thinkup_homepage_se
 		$thinkup_homepage_section3_link = get_permalink( $thinkup_homepage_section3_link );
 	}
 	if ( is_front_page() ) {
-		$d = date("Y-m-d",time());
-		$date = new DateTime($d);
-		$lower = $date->format("U");
-		$upper = $lower+86400;
-		$conn = mysqli_connect("localhost", "admin", "123EWQasd", "smartkeep");
-		$sql="select * from wp_usage where _time >= ". $lower ." and _time<=" . $upper;
-		mysqli_multi_query($conn,$sql);
-		$count=0;
-		$pass_time='';
-		$pass_usage='';
-		do
-		{
-			if ($result=mysqli_store_result($conn))
-			{
-				while ($row=mysqli_fetch_row($result))
-				{
-					if($count!=0)
-					{
-						$pass_time=$pass_time . " ";
-						$pass_usage=$pass_usage . " ";
-					}
-					$pass_time=$pass_time . $row[3];
-					$pass_usage=$pass_usage . $row[4];
-					$count++;
-				}
-				mysqli_free_result($result);
-			}
-		}while(mysqli_next_result($conn));
-		?>
+	?>
 		<center>
 		<h1 id="show_tim" style="padding-top:50px;"></h1>
 		<ul>
@@ -356,6 +328,12 @@ $thinkup_homepage_section3_link  = consulting_thinkup_var ( 'thinkup_homepage_se
 				<select class="tex" id="Day2" style="display:none; margin: 0px 5px 0px 5px;"></select>
 			</li>
 			<li>
+				<select class="tex" id="_id" style="margin:0px 5px;"></select>
+			</li>
+			<li>
+				<select class="tex" id="_type" style="margin:0px 5px;"></select>
+			</li>
+			<li>
 				<input class="btn" id="sear" type="button" value="查詢" onclick="_search()">
 			</li>
 		</ul>
@@ -368,9 +346,8 @@ $thinkup_homepage_section3_link  = consulting_thinkup_var ( 'thinkup_homepage_se
 		</div>
 		<div id="show_section" style="padding-top:50px;">
 			<h1>Chart</h1>
-			<div id="chart_container" style="width:100%; height:800px;" align="center">
+			<div id="chart_container" style="width:100%; height:auto; padding-bottom:150px;" align="center">
 				<div id="chart_div" style="width:80%; height:auto; padding-top:50px;">
-					<canvas id="myChart"></canvas>
 				</div>
 			</div>
 		</div>

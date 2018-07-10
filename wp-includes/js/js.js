@@ -1,32 +1,51 @@
 var init_count=0;
 var upper
 var lower
+var _type
+var _id
 function init(up,lo)
 {
     upper=up;
     lower=lo;
-    var str="".concat(upper,",",lower);
+    _type=-1;
+    _id=-1;
+    var str="".concat(upper,",",lower,",",_id,",",_type);
     var socket = io.connect('http://140.125.33.31:8080');
-    var result=socket.emit('Data',str);
+    socket.emit('Data',str);
+    document.getElementById("chart_div").innerHTML="<canvas id='myChart'>"
         socket.on('Data',function(data){
-	var id_arr=[]
-	var type_arr=[]
-	var time_arr=[]
-	var usage_arr=[]
-	for(var key in data)
-	{
-		time_arr.push(timeConverter(data[key]._time));
-		usage_arr.push(data[key]._usage);
-	}
-	if(init_count==0)
-	{
-		draw_chart(up,lo,time_arr,usage_arr);
+	    if(init_count==0)
+	    {
 		draw_statistics_table(upper,lower,data);
-	}
-	init_count++;
-    });
-        var tim="".concat(timeConverter(lower),"~",timeConverter(upper));
-        document.getElementById('show_tim').innerHTML=tim;
+	    }
+	    init_count++;
+        });
+	socket.emit('ID',"GET ALL ID");
+	socket.on('ID',function(data){
+		var str="<option value='-1' selected='selected'>ALL</option>";
+		for(var key in data)
+		{
+			if(data[key]._pid==_id)
+				str+="<option value="+data[key]._pid+" selected='selected'>"+data[key]._pid+"</option>";
+			else
+				str+="<option value="+data[key]._pid+">"+data[key]._pid+"</option>";
+		}
+		document.getElementById('_id').innerHTML=str;
+	});
+	socket.emit('Type',"GET ALL TYPE");
+	socket.on('Type',function(data){
+		var str="<option value='-1' selected='selected'>ALL</option>";
+		for(var key in data)
+		{
+			if(data[key]._type==_type)
+				str+="<option value="+data[key]._type+" selected='selected'>"+data[key]._type+"</option>";
+			else
+				str+="<option value="+data[key]._type+">"+data[key]._type+"</option>";
+		}
+		document.getElementById('_type').innerHTML=str;
+	});
+    var tim="".concat(timeConverter_easy(lower),"~",timeConverter_easy(upper));
+    document.getElementById('show_tim').innerHTML=tim;
     year_init();
     month_init(1);
     month_init(2);
@@ -36,13 +55,14 @@ function init(up,lo)
 
 function draw_statistics_table(up,lo,data)
 {
+	var time=[];
+	var usage=[];
 	var div_content="<table><tr><td>Date</td><td>Usage(kWh)</td></tr>";
 	var days=(up-lo)/86400;
 	var day_usage = [];
 	var data_count = [];
 	var aver_day_usage = [];
 	var without_data = 0;
-	console.log(days)
 	for(var i=0;i<days;i++)
 	{
 		day_usage[i]=0;
@@ -57,10 +77,13 @@ function draw_statistics_table(up,lo,data)
 	}
 	for(var i=0;i<days;i++)
 	{
+		var t=(lo*1)+(i*86400);
 		if(data_count[i]!=0)
 		{
 			aver_day_usage[i]=(day_usage[i]/data_count[i])*0.36;
-			div_content+="<tr><td>"+timeConverter_easy(lo+(i*86400))+"</td><td>"+aver_day_usage[i]+"</td></tr>";
+			time.push(timeConverter_easy(t));
+			usage.push(aver_day_usage[i]);
+			div_content+="<tr><td>"+timeConverter_easy(t)+"</td><td>"+aver_day_usage[i]+"</td></tr>";
 		}
 		else
 		{
@@ -71,6 +94,7 @@ function draw_statistics_table(up,lo,data)
 	}
 	div_content+="</table>"
 	document.getElementById('statistics_div').innerHTML=div_content;
+	draw_chart(up,lo,time,usage);
 }
 
 function draw_chart(up,lo,time,usage)
@@ -84,7 +108,7 @@ function draw_chart(up,lo,time,usage)
         data: {
             labels: time,
             datasets: [{
-                label: "Power Usage",
+                label: "Power Usage(kWh)",
                 backgroundColor: 'rgb(100, 100, 255)',
                 borderColor: 'rgb(240, 240, 240)',
                 data: usage,
@@ -98,6 +122,8 @@ function draw_chart(up,lo,time,usage)
 
 function _search()
 {
+    _id = document.getElementById('_id').value
+    _type = document.getElementById('_type').value
     init_count=0;
     var year1 = document.getElementById('Year1').value
     var month1 = document.getElementById('Month1').value
@@ -107,6 +133,7 @@ function _search()
     var day2 = document.getElementById('Day2').value
     var tt1 = year1+'-'+month1+'-'+day1;
     var tt2 = year2+'-'+month2+'-'+day2;
+    document.getElementById('chart_div').innerHTML="<canvas id='myChart'>"
     lower = (new Date(tt1).getTime())/1000;
     upper = (new Date(tt2).getTime())/1000;
     if(lower>upper)
@@ -115,12 +142,14 @@ function _search()
         lower=upper
         upper=tmp
     }
-    upper+=86400
-    var tim="".concat(timeConverter(lower),"~",timeConverter(upper));
+    upper+=86399
+    var tim="".concat(timeConverter_easy(lower),"~",timeConverter_easy(upper));
     document.getElementById('show_tim').innerHTML=tim;
-    var str="".concat(upper,",",lower);
+    var str="".concat(upper,",",lower,",",_id,",",_type);
     var socket = io.connect('http://140.125.33.31:8080');
-    var result=socket.emit('Data',str);
+    socket.emit('Data',str);
+    socket.emit('ID',"GET ALL ID");
+    socket.emit('Type',"GET ALL TYPE");
 }
 
 function year_init()
