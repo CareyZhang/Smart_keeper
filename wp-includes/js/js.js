@@ -1,10 +1,16 @@
 var init_count=0;
-function init(upper,lower)
+var upper
+var lower
+function init(up,lo)
 {
+    upper=up;
+    lower=lo;
     var str="".concat(upper,",",lower);
     var socket = io.connect('http://140.125.33.31:8080');
     var result=socket.emit('Data',str);
         socket.on('Data',function(data){
+	var id_arr=[]
+	var type_arr=[]
 	var time_arr=[]
 	var usage_arr=[]
 	for(var key in data)
@@ -14,7 +20,8 @@ function init(upper,lower)
 	}
 	if(init_count==0)
 	{
-		draw_chart(upper,lower,time_arr,usage_arr);
+		draw_chart(up,lo,time_arr,usage_arr);
+		draw_statistics_table(upper,lower,data);
 	}
 	init_count++;
     });
@@ -27,7 +34,46 @@ function init(upper,lower)
     day_init(2);
 }
 
-function draw_chart(upper,lower,time,usage)
+function draw_statistics_table(up,lo,data)
+{
+	var div_content="<table><tr><td>Date</td><td>Usage(kWh)</td></tr>";
+	var days=(up-lo)/86400;
+	var day_usage = [];
+	var data_count = [];
+	var aver_day_usage = [];
+	var without_data = 0;
+	console.log(days)
+	for(var i=0;i<days;i++)
+	{
+		day_usage[i]=0;
+		data_count[i]=0;
+		aver_day_usage[i]=0;
+	}
+	for(var key in data)
+	{
+		var index=Math.floor((data[key]._time-lower)/86400);
+		day_usage[index]+=data[key]._usage;
+		data_count[index]++;
+	}
+	for(var i=0;i<days;i++)
+	{
+		if(data_count[i]!=0)
+		{
+			aver_day_usage[i]=(day_usage[i]/data_count[i])*0.36;
+			div_content+="<tr><td>"+timeConverter_easy(lo+(i*86400))+"</td><td>"+aver_day_usage[i]+"</td></tr>";
+		}
+		else
+		{
+			without_data++;
+		}
+		if(without_data==days)
+			div_content+="<tr><td colspan='2'>No Data</td></tr>";
+	}
+	div_content+="</table>"
+	document.getElementById('statistics_div').innerHTML=div_content;
+}
+
+function draw_chart(up,lo,time,usage)
 {
     var ctx = document.getElementById('myChart').getContext('2d');
     var chart = new Chart(ctx, {
@@ -61,8 +107,8 @@ function _search()
     var day2 = document.getElementById('Day2').value
     var tt1 = year1+'-'+month1+'-'+day1;
     var tt2 = year2+'-'+month2+'-'+day2;
-    var lower = (new Date(tt1).getTime())/1000;
-    var upper = (new Date(tt2).getTime())/1000;
+    lower = (new Date(tt1).getTime())/1000;
+    upper = (new Date(tt2).getTime())/1000;
     if(lower>upper)
     {
         var tmp=lower

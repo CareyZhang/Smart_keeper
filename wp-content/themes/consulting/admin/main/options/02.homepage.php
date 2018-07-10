@@ -360,8 +360,11 @@ $thinkup_homepage_section3_link  = consulting_thinkup_var ( 'thinkup_homepage_se
 			</li>
 		</ul>
 		<hr style="width:600px;">
-		<div id="analysis_section" style="width:100%; padding:30px 0px;">
-			<h1>Analysis</h1>
+		<div id="statistics_section" style="width:100%; padding:30px 0px;">
+			<h1>Statistics</h1>
+			<div id="statistics_container" style="width:100%; height:auto;" align="center">
+				<div id="statistics_div" style="width:80%; height:auto; padding-top:50px;"></div>
+			</div>
 		</div>
 		<div id="show_section" style="padding-top:50px;">
 			<h1>Chart</h1>
@@ -372,14 +375,6 @@ $thinkup_homepage_section3_link  = consulting_thinkup_var ( 'thinkup_homepage_se
 			</div>
 		</div>
 		</center>
-		<script>
-			$(document).ready(function() {
-				$("#see_analysis").click(function(){
-					$("#see_analysis").fadeOut(0)
-					$("#analysis_section").fadeIn(1000)
-				});
-			});
-		</script>
 		<?
 	}
 }
