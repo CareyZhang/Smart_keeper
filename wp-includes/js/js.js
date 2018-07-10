@@ -1,3 +1,4 @@
+var init_count=0;
 function init(upper,lower)
 {
     var str="".concat(upper,",",lower);
@@ -11,7 +12,11 @@ function init(upper,lower)
 		time_arr.push(timeConverter(data[key]._time));
 		usage_arr.push(data[key]._usage);
 	}
-	draw_chart(upper,lower,time_arr,usage_arr);
+	if(init_count==0)
+	{
+		draw_chart(upper,lower,time_arr,usage_arr);
+	}
+	init_count++;
     });
         var tim="".concat(timeConverter(lower),"~",timeConverter(upper));
         document.getElementById('show_tim').innerHTML=tim;
@@ -47,6 +52,7 @@ function draw_chart(upper,lower,time,usage)
 
 function _search()
 {
+    init_count=0;
     var year1 = document.getElementById('Year1').value
     var month1 = document.getElementById('Month1').value
     var day1 = document.getElementById('Day1').value

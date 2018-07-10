@@ -360,8 +360,7 @@ $thinkup_homepage_section3_link  = consulting_thinkup_var ( 'thinkup_homepage_se
 			</li>
 		</ul>
 		<hr style="width:600px;">
-		<input id="see_analysis" type="button" value="Analysis" style="width:100%;" onclick="show_analysis()">
-		<div id="analysis_section" style="width:100%; padding:30px 0px; display:none;">
+		<div id="analysis_section" style="width:100%; padding:30px 0px;">
 			<h1>Analysis</h1>
 		</div>
 		<div id="show_section" style="padding-top:50px;">
@@ -374,11 +373,6 @@ $thinkup_homepage_section3_link  = consulting_thinkup_var ( 'thinkup_homepage_se
 		</div>
 		</center>
 		<script>
-			//var socket = io.connect('http://140.125.33.31:8080');
-			//var result=socket.emit('Data','wwwwww');
-			//socket.on('Data',function(data){
-			//	console.log(data);
-			//});
 			$(document).ready(function() {
 				$("#see_analysis").click(function(){
 					$("#see_analysis").fadeOut(0)
