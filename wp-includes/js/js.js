@@ -55,6 +55,7 @@ function init(up,lo)
 
 function draw_statistics_table(up,lo,data)
 {
+	
 	var time=[];
 	var usage=[];
 	var div_content="<table><tr><td>Date</td><td>Usage(kWh)</td></tr>";
