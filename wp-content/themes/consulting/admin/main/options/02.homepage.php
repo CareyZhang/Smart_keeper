@@ -331,7 +331,10 @@ $thinkup_homepage_section3_link  = consulting_thinkup_var ( 'thinkup_homepage_se
 				<select class="tex" id="_id" style="margin:0px 5px;"></select>
 			</li>
 			<li>
-				<select class="tex" id="_type" style="margin:0px 5px;"></select>
+				<select class="tex" id="_type" style="margin:0px 5px;">
+					<option value="-1" selected="selected">ALL</option>
+					<option value="0">Power usage</option>
+				</select>
 			</li>
 			<li>
 				<input class="btn" id="sear" type="button" value="查詢" onclick="_search()">

@@ -21,7 +21,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
-<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script src="http://alasql.org/console/alasql.min.js"></script>
 <script src="//140.125.33.31:8080/socket.io/socket.io.js"></script>
 <?php wp_head(); ?>
 </head>

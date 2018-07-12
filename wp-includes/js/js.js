@@ -32,18 +32,6 @@ function init(up,lo)
 		}
 		document.getElementById('_id').innerHTML=str;
 	});
-	socket.emit('Type',"GET ALL TYPE");
-	socket.on('Type',function(data){
-		var str="<option value='-1' selected='selected'>ALL</option>";
-		for(var key in data)
-		{
-			if(data[key]._type==_type)
-				str+="<option value="+data[key]._type+" selected='selected'>"+data[key]._type+"</option>";
-			else
-				str+="<option value="+data[key]._type+">"+data[key]._type+"</option>";
-		}
-		document.getElementById('_type').innerHTML=str;
-	});
     var tim="".concat(timeConverter_easy(lower),"~",timeConverter_easy(upper));
     document.getElementById('show_tim').innerHTML=tim;
     year_init();
@@ -55,8 +43,27 @@ function init(up,lo)
 
 function draw_statistics_table(up,lo,data)
 {
-	
-	var time=[];
+        var days=(up-lo)/86400;
+        var which_day=-1;
+        var div_content="<table><tr><td>Date</td><td>ID</td><td>Type</td><td>Usage(kWh)</td></tr>";
+        for(var key in data)
+        {
+                var index=Math.floor((data[key]._time-lower)/86400);
+                while(index!=which_day)
+                {
+                        which_day++;
+                }
+                var t=(lo*1)+(which_day*86400);
+                div_content+="<tr><td>"+timeConverter_easy(t)+"</td><td>"+data[key]._pid+"</td><td>"+data[key]._type+"</td><td>"+data[key]._usage+"</td><td></td></tr>"
+        }
+	if(which_day==-1)
+	{
+		div_content+="<tr><td colspan='5'>No Data</td></tr>";
+	}
+	div_content+="</table>";
+        document.getElementById('statistics_div').innerHTML=div_content;
+	draw_chart(up,lo,data);
+	/*var time=[];
 	var usage=[];
 	var div_content="<table><tr><td>Date</td><td>Usage(kWh)</td></tr>";
 	var days=(up-lo)/86400;
@@ -95,25 +102,51 @@ function draw_statistics_table(up,lo,data)
 	}
 	div_content+="</table>"
 	document.getElementById('statistics_div').innerHTML=div_content;
-	draw_chart(up,lo,time,usage);
+	draw_chart(up,lo,time,usage);*/
 }
 
-function draw_chart(up,lo,time,usage)
+function draw_chart(up,lo,data)
 {
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var chart = new Chart(ctx, {
+	console.log(data)
+	var days=(up-lo)/86400;
+        var which_day=-1;
+	var day_arr=[];
+	var id_day_usage_arr=[];
+        var div_content="<table><tr><td>Date</td><td>ID</td><td>Type</td><td>Usage(kWh)</td></tr>";
+	for(var i=0;i<days;i++)
+	{
+		var t=(lo*1)+(i*86400);
+		day_arr.push(timeConverter_easy(t));
+	}
+        for(var key in data)
+        {
+                var index=Math.floor((data[key]._time-lower)/86400);
+                while(index!=which_day)
+                {
+                        which_day++;
+			id_day_usage_arr.push([]);
+                }
+		id_day_usage_arr[index].push([data[key]._pid,data[key]._usage]);
+        }
+	console.log(id_day_usage_arr);
+	
+	var ctx = document.getElementById('myChart').getContext('2d');
+	var chart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'line',
 
         // The data for our dataset
         data: {
-            labels: time,
+            labels: day_arr,
             datasets: [{
                 label: "Power Usage(kWh)",
-                backgroundColor: 'rgb(100, 100, 255)',
                 borderColor: 'rgb(240, 240, 240)',
-                data: usage,
-            }]
+                data: [200,400],
+            },{
+		label: "U2",
+		borderColor:'rgb(100,100,100)',
+		data:[300,500],
+	    }]
         },
 
         // Configuration options go here
