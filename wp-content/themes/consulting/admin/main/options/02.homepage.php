@@ -332,8 +332,7 @@ $thinkup_homepage_section3_link  = consulting_thinkup_var ( 'thinkup_homepage_se
 			</li>
 			<li>
 				<select class="tex" id="_type" style="margin:0px 5px;">
-					<option value="-1" selected="selected">ALL</option>
-					<option value="0">Power usage</option>
+					<option value="0" selected="selected">Power usage</option>
 				</select>
 			</li>
 			<li>

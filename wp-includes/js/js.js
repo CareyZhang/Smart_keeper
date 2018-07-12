@@ -7,7 +7,7 @@ function init(up,lo)
 {
     upper=up;
     lower=lo;
-    _type=-1;
+    _type=0;
     _id=-1;
     var str="".concat(upper,",",lower,",",_id,",",_type);
     var socket = io.connect('http://140.125.33.31:8080');
@@ -43,20 +43,16 @@ function init(up,lo)
 
 function draw_statistics_table(up,lo,data)
 {
+	console.log(data)
         var days=(up-lo)/86400;
-        var which_day=-1;
-        var div_content="<table><tr><td>Date</td><td>ID</td><td>Type</td><td>Usage(kWh)</td></tr>";
+	var data_count=0;
+        var div_content="<table><tr><td>ID</td><td>Time</td><td>Usage(kWh)</td></tr>";
         for(var key in data)
         {
-                var index=Math.floor((data[key]._time-lower)/86400);
-                while(index!=which_day)
-                {
-                        which_day++;
-                }
-                var t=(lo*1)+(which_day*86400);
-                div_content+="<tr><td>"+timeConverter_easy(t)+"</td><td>"+data[key]._pid+"</td><td>"+data[key]._type+"</td><td>"+data[key]._usage+"</td><td></td></tr>"
+                div_content+="<tr><td>"+data[key]._pid+"</td><td>"+timeConverter_easy(data[key]._time)+"</td><td>"+data[key]._usage+"</td><td></td></tr>";
+		data_count++;
         }
-	if(which_day==-1)
+	if(data_count==0)
 	{
 		div_content+="<tr><td colspan='5'>No Data</td></tr>";
 	}
@@ -107,29 +103,54 @@ function draw_statistics_table(up,lo,data)
 
 function draw_chart(up,lo,data)
 {
-	console.log(data)
 	var days=(up-lo)/86400;
-        var which_day=-1;
 	var day_arr=[];
-	var id_day_usage_arr=[];
-        var div_content="<table><tr><td>Date</td><td>ID</td><td>Type</td><td>Usage(kWh)</td></tr>";
+	var data_arr=[];
+        var div_content="<table><tr><td>Date</td><td>ID</td><td>Usage(kWh)</td></tr>";
 	for(var i=0;i<days;i++)
 	{
 		var t=(lo*1)+(i*86400);
 		day_arr.push(timeConverter_easy(t));
 	}
+	var which_id=-1;
+	var tmp=new Object();
+	var tmp_arr=[];
+	var data_count=0;
+	if(JSON.stringify(tmp)==='{}')
+		console.log("test")
         for(var key in data)
+	{
+		var index=Math.floor((data[key]._time-lo)/86400);
+		while(which_id!=data[key]._pid)
+		{
+			if(JSON.stringify(tmp)!=='{}')
+			{
+				tmp.data=tmp_arr;
+				data_arr[data_count]=tmp;
+				data_count++;
+			}
+			which_id++;
+			tmp=new Object();
+		}
+		if(JSON.stringify(tmp)==='{}')
+		{
+			tmp_arr=[];
+			tmp.label=data[key]._pid;
+			var color="rgb(".concat(Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),")");
+			tmp.borderColor=color;
+			for(var i=0;i<days;i++)
+			{
+				tmp_arr.push(0);
+			}
+		}
+		tmp_arr[index]=data[key]._usage;
+	}
+	if(JSON.stringify(tmp)!=='{}')
         {
-                var index=Math.floor((data[key]._time-lower)/86400);
-                while(index!=which_day)
-                {
-                        which_day++;
-			id_day_usage_arr.push([]);
-                }
-		id_day_usage_arr[index].push([data[key]._pid,data[key]._usage]);
+           tmp.data=tmp_arr;
+           data_arr[data_count]=tmp;
+	   data_count++;
         }
-	console.log(id_day_usage_arr);
-	
 	var ctx = document.getElementById('myChart').getContext('2d');
 	var chart = new Chart(ctx, {
         // The type of chart we want to create
@@ -138,15 +159,7 @@ function draw_chart(up,lo,data)
         // The data for our dataset
         data: {
             labels: day_arr,
-            datasets: [{
-                label: "Power Usage(kWh)",
-                borderColor: 'rgb(240, 240, 240)',
-                data: [200,400],
-            },{
-		label: "U2",
-		borderColor:'rgb(100,100,100)',
-		data:[300,500],
-	    }]
+            datasets: data_arr,
         },
 
         // Configuration options go here
@@ -183,7 +196,6 @@ function _search()
     var socket = io.connect('http://140.125.33.31:8080');
     socket.emit('Data',str);
     socket.emit('ID',"GET ALL ID");
-    socket.emit('Type',"GET ALL TYPE");
 }
 
 function year_init()
