@@ -33,6 +33,7 @@ function wp_dashboard_setup() {
 		else
 			wp_add_dashboard_widget( 'dashboard_browser_nag', __( 'Your browser is out of date!' ), 'wp_dashboard_browser_nag' );
 	}
+
 	// Right Now
 	/*if ( is_blog_admin() && current_user_can('edit_posts') )
 		wp_add_dashboard_widget( 'dashboard_right_now', __( 'At a Glance' ), 'wp_dashboard_right_now' );
@@ -213,56 +214,20 @@ function wp_dashboard() {
 
 ?>
 <div id="dashboard-widgets" class="metabox-holder<?php echo $columns_css; ?>">
-	<table>
-	<h1>Device Status</h1>
-	<hr width="150" align="left">
-	<tr><td>Device ID</td><td>Current Update Time</td><td>Current Usage(kWh)</td><td>Status</td></tr>
-	<?
-		$conn=mysqli_connect("140.125.33.31", "admin", "123EWQasd", "smartkeep");
-		mysqli_multi_query($conn,"select _pid,_usage,Max(_time) as _time from wp_usage group by _pid asc;");
-		do
-		{
-			if ($result=mysqli_store_result($conn))
-			{
-				while ($row=mysqli_fetch_row($result))
-				{
-					?>
-					<tr>
-					<td><?=$row[0]?></td>
-					<td><?=date('Y-m-d H:i:s',$row[2])?></td>
-					<td><?=$row[1]?></td>
-					<td>
-					<?
-						$tmp=$row[1]==0?0:1;
-						if($tmp!=0)
-						{
-							?>
-							<label class="switch">
-							<input id="switch<?=$row[0]?>" type="checkbox" onclick="on_off(<?=$row[0]?>)" checked>
-							<span class="slider round"></span>
-							</label>
-							<?
-						}
-						else
-						{
-							?>
-							<label class="switch">
-                                                        <input id="switch<?=$row[0]?>" type="checkbox" onclick="on_off(<?=$row[0]?>)">
-                                                        <span class="slider round"></span>
-                                                        </label>
-							<?
-						}
-					?>
-					</td>
-					</tr>
-					<?
-				}
-				mysqli_free_result($result);
-			}
-		}while(mysqli_next_result($conn));
-	?>
-	</table>
+	<div id="postbox-container-1" class="postbox-container">
+	<?php do_meta_boxes( $screen->id, 'normal', '' ); ?>
+	</div>
+	<div id="postbox-container-2" class="postbox-container">
+	<?php do_meta_boxes( $screen->id, 'side', '' ); ?>
+	</div>
+	<div id="postbox-container-3" class="postbox-container">
+	<?php do_meta_boxes( $screen->id, 'column3', '' ); ?>
+	</div>
+	<div id="postbox-container-4" class="postbox-container">
+	<?php do_meta_boxes( $screen->id, 'column4', '' ); ?>
+	</div>
 </div>
+
 <?php
 	wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );
 	wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false );

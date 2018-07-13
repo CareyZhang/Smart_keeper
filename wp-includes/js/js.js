@@ -40,10 +40,8 @@ function init(up,lo)
     day_init(1);
     day_init(2);
 }
-
 function draw_statistics_table(up,lo,data)
 {
-	console.log(data)
         var days=(up-lo)/86400;
 	var data_count=0;
         var div_content="<table><tr><td>ID</td><td>Time</td><td>Usage(kWh)</td></tr>";
@@ -59,46 +57,6 @@ function draw_statistics_table(up,lo,data)
 	div_content+="</table>";
         document.getElementById('statistics_div').innerHTML=div_content;
 	draw_chart(up,lo,data);
-	/*var time=[];
-	var usage=[];
-	var div_content="<table><tr><td>Date</td><td>Usage(kWh)</td></tr>";
-	var days=(up-lo)/86400;
-	var day_usage = [];
-	var data_count = [];
-	var aver_day_usage = [];
-	var without_data = 0;
-	for(var i=0;i<days;i++)
-	{
-		day_usage[i]=0;
-		data_count[i]=0;
-		aver_day_usage[i]=0;
-	}
-	for(var key in data)
-	{
-		var index=Math.floor((data[key]._time-lower)/86400);
-		day_usage[index]+=data[key]._usage;
-		data_count[index]++;
-	}
-	for(var i=0;i<days;i++)
-	{
-		var t=(lo*1)+(i*86400);
-		if(data_count[i]!=0)
-		{
-			aver_day_usage[i]=(day_usage[i]/data_count[i])*0.36;
-			time.push(timeConverter_easy(t));
-			usage.push(aver_day_usage[i]);
-			div_content+="<tr><td>"+timeConverter_easy(t)+"</td><td>"+aver_day_usage[i]+"</td></tr>";
-		}
-		else
-		{
-			without_data++;
-		}
-		if(without_data==days)
-			div_content+="<tr><td colspan='2'>No Data</td></tr>";
-	}
-	div_content+="</table>"
-	document.getElementById('statistics_div').innerHTML=div_content;
-	draw_chart(up,lo,time,usage);*/
 }
 
 function draw_chart(up,lo,data)
@@ -116,8 +74,6 @@ function draw_chart(up,lo,data)
 	var tmp=new Object();
 	var tmp_arr=[];
 	var data_count=0;
-	if(JSON.stringify(tmp)==='{}')
-		console.log("test")
         for(var key in data)
 	{
 		var index=Math.floor((data[key]._time-lo)/86400);
@@ -165,6 +121,71 @@ function draw_chart(up,lo,data)
         // Configuration options go here
         options: {}
     });
+}
+
+var switch_pid;
+
+function on_off(pid)
+{
+	var socket = io.connect('http://140.125.33.31:8080');
+	var switch_status=document.getElementById('switch'+pid).checked;
+	switch_pid=pid;
+	var str="".concat(upper,",",lower,",",switch_pid,",",_type);
+	socket.emit('Data',str);
+	$("#all").show(0);
+	$("#cover").show(400);
+	if(switch_status==true)
+	{
+		//device on
+		document.getElementById("on_off").innerHTML="<input class='btn' type='button' value='Turn On later' onclick='turn_on_off(1,1)'><input class='btn' type='button' value='Turn on now' onclick='turn_on_off(0,1)'>";
+	}
+	else
+	{
+		//device off
+		document.getElementById("on_off").innerHTML="<input class='btn' type='button' value='Turn Off later' onclick='turn_on_off(1,0)'><input class='btn' type='button' value='Turn off now' onclick='turn_on_off(0,0)'>";
+	}
+}
+
+function turn_on_off(now_or_later,method)
+{
+	var socket = io.connect('http://140.125.33.31:8080');
+	var year = document.getElementById('Year').value;
+	var month = document.getElementById('Month').value;
+	var day = document.getElementById('Day').value;
+	var hour = document.getElementById('Hour').value;
+	var min = document.getElementById('Min').value;
+	var tt = year+'-'+month+'-'+day;
+	var result = ((new Date(tt).getTime())/1000)+hour*3600+min*60;
+	var ts = Math.round((new Date()).getTime() / 1000);
+	if(now_or_later==0)
+	{
+		var str="".concat((_type*255+switch_pid),",",method,",",result,",",now_or_later);
+                socket.emit('Switch',str);
+                clos();
+	}
+	else
+	{
+		if(result<ts)
+		{
+			alert('Choose the later time');
+		}
+		else
+		{
+			var str="".concat((_type*255+switch_pid),",",method,",",result,",",now_or_later);
+			socket.emit('Switch',str);
+			clos();
+		}
+	}
+}
+
+function clos()
+{
+	$("#all").hide(0);
+	$("#cover").hide(400);
+	document.getElementById('chart_div').innerHTML="<canvas id='myChart' style='z-index:100002;'></canvas>"
+	init_count=0;
+	var switch_status=document.getElementById('switch'+switch_pid).checked;
+	document.getElementById('switch'+switch_pid).checked=!switch_status;
 }
 
 function _search()
@@ -275,6 +296,128 @@ function day_init(_id)
             dd=dd+"<option value='"+i+"'>"+i+"日</option>"
     }
     document.getElementById("Day"+_id).innerHTML=dd;
+}
+
+function back_init(up,lo,type)
+{
+    _type=type;
+    upper=up;
+    lower=lo;
+    year_ini();
+    mon_ini();
+    day_ini();
+    var socket = io.connect('http://140.125.33.31:8080');
+    socket.on('Data',function(data){
+	console.log(data)
+         if(init_count==0)
+        {
+                draw_chart(upper,lower,data);
+        }
+        init_count++;
+    });
+}
+
+function year_ini()
+{
+    var d=new Date();
+    var y=d.getFullYear();
+    var yy
+    for(var i=y;i<=(y+1);i++)
+    {
+        if(i!=y)
+        {
+            yy=yy+"<option value='"+i+"'>"+i+"年</option>"
+        }
+        else
+        {
+            yy=yy+"<option value='"+i+"' selected='selected'>"+i+"年</option>"
+        }
+    }
+    document.getElementById("Year").innerHTML=yy;
+}
+
+function mon_ini()
+{
+    var d=new Date();
+    var y=d.getFullYear();
+    var yy=document.getElementById("Year").value;
+    var m=d.getMonth()+1;
+    var least_month;
+    if(yy>y)
+    {
+	least_month=1;
+    }
+    else
+    {
+	least_month=m;
+    }
+    var mm
+    for(var i=least_month;i<=12;i++)
+    {
+        if(m==i)
+            mm=mm+"<option value='"+i+"' selected='selected'>"+i+"月</option>"
+        else
+            mm=mm+"<option value='"+i+"'>"+i+"月</option>"
+    }
+    document.getElementById("Month").innerHTML=mm;
+
+}
+
+function day_ini()
+{
+    var d=new Date();
+    var da=d.getDate();
+    var yy=d.getFullYear();
+    var mm=d.getMonth()+1;
+    var dd
+    var last_day
+    var y=document.getElementById("Year").value;
+    var m=document.getElementById("Month").value;
+    var day_lo;
+    var days=[31,28,31,30,31,30,31,31,30,31,30,31]
+    if(y>yy)
+    {
+	day_lo=1;
+    }
+    else if(m>mm)
+    {
+	day_lo=1;
+    }
+    else
+    {
+	day_lo=da;
+    }
+    if((y%4)==0)
+    {
+        if(m==2)
+        {
+            last_day=29
+        }
+        else
+        {
+            if((m-1)!=-1)
+                last_day=days[m-1];
+        }
+    }
+    else
+    {
+        if(m==2)
+        {
+            last_day=28
+        }
+        else
+        {
+            last_day=days[m-1];
+        }
+    }
+    for(var i=day_lo;i<=last_day;i++)
+    {
+        if(i==da)
+            dd=dd+"<option value='"+i+"' selected='selected'>"+i+"日</option>"
+        else
+            dd=dd+"<option value='"+i+"'>"+i+"日</option>"
+    }
+    document.getElementById("Day").innerHTML=dd;
 }
 
 function timeConverter(UNIX_timestamp)
