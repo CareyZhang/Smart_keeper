@@ -25,6 +25,14 @@ require_once( dirname( __FILE__ ) . '/admin.php' );
 global $title, $hook_suffix, $current_screen, $wp_locale, $pagenow,
 $update_title, $total_update_count, $parent_file;
 
+if(!is_network_admin()&&!is_user_admin()&&!is_blog_admin())
+{
+	?>
+	<script>
+	location.replace('http://140.125.33.33')
+	</script>
+	<?
+}
 // Catch plugins that include admin-header.php before admin.php completes.
 if ( empty( $current_screen ) )
 set_current_screen();
@@ -206,13 +214,13 @@ $date = new DateTime($d);
 $lower = $date->format("U");
 $upper = $lower+86400;
 ?>
-<body class="wp-admin wp-core-ui no-js <?php echo $admin_body_classes . ' ' . $admin_body_class; ?>" onload="back_init('<?=$upper-1?>','<?=$lower?>',0)">
-<div id="all" style="position:absolute; top:0px; left:0px; bottom:0px; right:0px; width:auto; height:auto; z-index:100000; display:none;" onclick="clos()"></div>
-<div id="cover" style="position:absolute; top:40px; bottom:10px; left:0px; right:0px; width:auto; height:auto; background-color:rgba(0,0,0,0.8); z-index:100001; border-radius:10px; display:none; border:rgba(0,0,0,0.3) solid 10px;">
+<body class="wp-admin wp-core-ui no-js <?php echo $admin_body_classes . ' ' . $admin_body_class; ?>" onload="init('<?=$upper-1?>','<?=$lower?>')">
+<div id="all" style="position:fixed; top:0px; left:0px; bottom:0px; right:0px; width:auto; height:auto; z-index:100000; display:none;" onclick="clos()"></div>
+<div id="cover" style="position:fixed; top:40px; bottom:10px; left:0px; right:0px; width:auto; height:auto; background-color:rgba(0,0,0,0.8); z-index:100001; border-radius:10px; display:none; border:rgba(0,0,0,0.3) solid 10px;">
 	<center>
 	<h1 style="color:#FFF;">Device Control</h1><hr width="350">
-	<div id="chart_div" style="width:500px; height:auto;"><canvas id="myChart" style="z-index:100002;"></canvas></div><br>
-	<ul class="tex" style="display:inline;">
+	<div id="status_div" style="width:800px; height:auto;"><canvas id="Chart" style="z-index:100002;"></canvas></div><br>
+	<ul style="display:inline;">
 		<li style="display:inline;">
 			<select class="tex" id="Year" style="margin: 0px 5px 0px 5px;" onchange="mon_ini()"></select>
 		</li>

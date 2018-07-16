@@ -1,31 +1,39 @@
-var init_count=0;
+var init_count_status=0;
+var init_count_chart=0;
 var upper
 var lower
-var _type
-var _id
+var _type = 0;
+var switch_pid;
+var mychart_id = -1;
 function init(up,lo)
 {
     upper=up;
     lower=lo;
-    _type=0;
-    _id=-1;
-    var str="".concat(upper,",",lower,",",_id,",",_type);
+    var str="".concat(upper,",",lower,",",mychart_id,",",_type);
     var socket = io.connect('http://140.125.33.31:8080');
     socket.emit('Data',str);
     document.getElementById("chart_div").innerHTML="<canvas id='myChart'>"
         socket.on('Data',function(data){
-	    if(init_count==0)
+	    if(init_count_chart==0)
 	    {
 		draw_statistics_table(upper,lower,data);
+		draw_chart(upper,lower,data,0);
 	    }
-	    init_count++;
+	    init_count_chart++;
         });
+	socket.on('Data2',function(data){
+            if(init_count_status==0)
+            {
+                draw_chart(upper,lower,data,1);
+            }
+            init_count_status++;
+	});
 	socket.emit('ID',"GET ALL ID");
 	socket.on('ID',function(data){
 		var str="<option value='-1' selected='selected'>ALL</option>";
 		for(var key in data)
 		{
-			if(data[key]._pid==_id)
+			if(data[key]._pid==mychart_id)
 				str+="<option value="+data[key]._pid+" selected='selected'>"+data[key]._pid+"</option>";
 			else
 				str+="<option value="+data[key]._pid+">"+data[key]._pid+"</option>";
@@ -39,6 +47,9 @@ function init(up,lo)
     month_init(2);
     day_init(1);
     day_init(2);
+    year_ini();
+    mon_ini();
+    day_ini();
 }
 function draw_statistics_table(up,lo,data)
 {
@@ -47,7 +58,7 @@ function draw_statistics_table(up,lo,data)
         var div_content="<table><tr><td>ID</td><td>Time</td><td>Usage(kWh)</td></tr>";
         for(var key in data)
         {
-                div_content+="<tr><td>"+data[key]._pid+"</td><td>"+timeConverter_easy(data[key]._time)+"</td><td>"+data[key]._usage+"</td><td></td></tr>";
+                div_content+="<tr><td>"+data[key]._pid+"</td><td>"+timeConverter_easy(data[key]._time)+"</td><td>"+data[key]._usage+"</td></tr>";
 		data_count++;
         }
 	if(data_count==0)
@@ -56,10 +67,10 @@ function draw_statistics_table(up,lo,data)
 	}
 	div_content+="</table>";
         document.getElementById('statistics_div').innerHTML=div_content;
-	draw_chart(up,lo,data);
+	
 }
 
-function draw_chart(up,lo,data)
+function draw_chart(up,lo,data,chart_id)
 {
 	var days=(up-lo)/86400;
 	var day_arr=[];
@@ -107,7 +118,15 @@ function draw_chart(up,lo,data)
            data_arr[data_count]=tmp;
 	   data_count++;
         }
-	var ctx = document.getElementById('myChart').getContext('2d');
+	var ctx;
+	if(chart_id==0)
+	{
+		ctx = document.getElementById('myChart').getContext('2d');
+	}
+	else
+	{
+		ctx = document.getElementById('Chart').getContext('2d');
+	}
 	var chart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'line',
@@ -119,11 +138,31 @@ function draw_chart(up,lo,data)
         },
 
         // Configuration options go here
-        options: {}
+        options: {
+		responsive: true,
+		title: {
+	                display: false,
+        	        text: ''
+            	},
+		scales: {
+                xAxes: [{
+                	    display: true,
+        	            scaleLabel: {
+	                        display: true,
+        	                labelString: 'Time'
+	                    }
+	                }],
+	        yAxes: [{
+        	            display: true,
+	                    scaleLabel: {
+                	        display: true,
+        	                labelString: 'Usage(kWh)'
+	                    }
+                	}]
+            	}
+	}
     });
 }
-
-var switch_pid;
 
 function on_off(pid)
 {
@@ -131,7 +170,7 @@ function on_off(pid)
 	var switch_status=document.getElementById('switch'+pid).checked;
 	switch_pid=pid;
 	var str="".concat(upper,",",lower,",",switch_pid,",",_type);
-	socket.emit('Data',str);
+	socket.emit('Data2',str);
 	$("#all").show(0);
 	$("#cover").show(400);
 	if(switch_status==true)
@@ -182,17 +221,17 @@ function clos()
 {
 	$("#all").hide(0);
 	$("#cover").hide(400);
-	document.getElementById('chart_div').innerHTML="<canvas id='myChart' style='z-index:100002;'></canvas>"
-	init_count=0;
+	document.getElementById('status_div').innerHTML="<canvas id='Chart' style='z-index:100002;'></canvas>"
+	init_count_status=0;
 	var switch_status=document.getElementById('switch'+switch_pid).checked;
 	document.getElementById('switch'+switch_pid).checked=!switch_status;
 }
 
 function _search()
 {
-    _id = document.getElementById('_id').value
+    mychart_id = document.getElementById('_id').value
     _type = document.getElementById('_type').value
-    init_count=0;
+    init_count_chart=0;
     var year1 = document.getElementById('Year1').value
     var month1 = document.getElementById('Month1').value
     var day1 = document.getElementById('Day1').value
@@ -213,7 +252,7 @@ function _search()
     upper+=86399
     var tim="".concat(timeConverter_easy(lower),"~",timeConverter_easy(upper));
     document.getElementById('show_tim').innerHTML=tim;
-    var str="".concat(upper,",",lower,",",_id,",",_type);
+    var str="".concat(upper,",",lower,",",mychart_id,",",_type);
     var socket = io.connect('http://140.125.33.31:8080');
     socket.emit('Data',str);
     socket.emit('ID',"GET ALL ID");
@@ -296,25 +335,6 @@ function day_init(_id)
             dd=dd+"<option value='"+i+"'>"+i+"日</option>"
     }
     document.getElementById("Day"+_id).innerHTML=dd;
-}
-
-function back_init(up,lo,type)
-{
-    _type=type;
-    upper=up;
-    lower=lo;
-    year_ini();
-    mon_ini();
-    day_ini();
-    var socket = io.connect('http://140.125.33.31:8080');
-    socket.on('Data',function(data){
-	console.log(data)
-         if(init_count==0)
-        {
-                draw_chart(upper,lower,data);
-        }
-        init_count++;
-    });
 }
 
 function year_ini()

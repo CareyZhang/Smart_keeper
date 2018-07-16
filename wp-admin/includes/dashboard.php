@@ -213,7 +213,53 @@ function wp_dashboard() {
 
 ?>
 <div id="dashboard-widgets" class="metabox-holder<?php echo $columns_css; ?>">
+	<center>
+	<h1 id="show_tim" style="padding-top:10px;"></h1>
+        <ul style="display:inline;">
+                <li style="display:inline;">
+                        <select class="tex" id="Year1" style="margin: 0px 5px 0px 5px;" onchange="month_init(1)"></select>
+                </li>
+                <li style="display:inline;">
+                        <select class="tex" id="Month1" onchange="day_init(1)" style="display:none; margin: 0px 5px 0px 5px;"></select>
+                </li>
+                <li style="display:inline;">
+                        <select class="tex" id="Day1" style="display:none; margin: 0px 5px 0px 5px;"></select>
+                </li>
+                <li style="display:inline;">
+                        <span> ~</span>
+                </li>
+                <li style="display:inline;">
+                        <select class="tex" id="Year2" style="margin: 0px 5px 0px 5px;" onchange="month_init(2)"></select>
+                </li>
+                <li style="display:inline;">
+                        <select class="tex" id="Month2" onchange="day_init(2)" style="display:none; margin: 0px 5px 0px 5px;"></select>
+                </li>
+                <li style="display:inline;">
+                        <select class="tex" id="Day2" style="display:none; margin: 0px 5px 0px 5px;"></select>
+                </li>
+                <li style="display:inline;">
+                        <select class="tex" id="_id" style="margin:0px 5px;"></select>
+                </li>
+                <li style="display:inline;">
+                        <select class="tex" id="_type" style="margin:0px 5px;">
+                                <option value="0" selected="selected">Power usage</option>
+                        </select>
+                </li>
+                <li style="display:inline;">
+                        <input class="btn" id="sear" type="button" value="Search" onclick="_search()">
+                </li>
+        </ul>
+        <hr style="width:600px;">
+	</center>
 	<table>
+	<div id="show_section" style="padding-top:10px;">
+                <h1>Chart</h1>
+                <hr style="width:60px;" align="left">
+                <div id="chart_container" style="width:100%; height:auto; padding-bottom:80px;" align="center">
+                        <div id="chart_div" style="width:80%; height:auto; padding-top:50px;">
+                        </div>
+                </div>
+        </div>
 	<h1>Device Status</h1>
 	<hr width="150" align="left">
 	<tr><td>Device ID</td><td>Current Update Time</td><td>Current Usage(kWh)</td><td>Status</td></tr>
@@ -262,7 +308,34 @@ function wp_dashboard() {
 		}while(mysqli_next_result($conn));
 	?>
 	</table>
+	<div id="statistics_section" style="width:100%;">
+		<h1>Statistics</h1>
+		<hr style="width:100px;" align="left">
+		<div id="statistics_container" style="width:100%; height:auto; padding-bottom:100px;" align="center">
+			<div id="statistics_div" style="width:80%; height:auto; padding-top:50px;"></div>
+		</div>
+	</div>
 </div>
+<style>
+.tex
+{
+	width:auto;
+	height:50px;
+	border-radius:3px;
+	cursor:pointer;
+	box-shadow:3px 3px 4px rgba(0,0,0,0.5);
+
+}
+.btn
+{
+	width:auto;
+	height:35px;
+	border-radius:3px;
+	cursor:pointer;
+	box-shadow:3px 3px 4px rgba(0,0,0,0.5);
+	margin:0px 3px;
+}
+</style>
 <?php
 	wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );
 	wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false );

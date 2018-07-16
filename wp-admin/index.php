@@ -8,8 +8,8 @@
 
 /** Load WordPress Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
-
 /** Load WordPress dashboard API */
+//require_once(ABSPATH . 'wp-admin/includes/dashboard.php');
 require_once(ABSPATH . 'wp-admin/includes/dashboard.php');
 
 wp_dashboard_setup();
