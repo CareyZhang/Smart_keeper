@@ -139,11 +139,11 @@ function draw_chart(up,lo,data,chart_id)
 
         // Configuration options go here
         options: {
-		responsive: true,
 		title: {
-	                display: false,
-        	        text: ''
-            	},
+			display: true,
+      			text: 'History',
+			fontSize: 20
+		},
 		scales: {
                 xAxes: [{
                 	    display: true,
