@@ -1,0 +1,49 @@
+<wpml-config>
+    <admin-texts>
+        <key name="theme_mods_adonis">
+    		<key name="adonis_header_media_title"/>
+    		<key name="adonis_header_media_text"/>
+    		<key name="adonis_header_media_url"/>
+    		<key name="adonis_header_media_url_text"/>
+    		<key name="adonis_breadcrumb_seperator"/>
+    		<key name="adonis_events_headline"/>
+    		<key name="adonis_events_subheadline"/>
+    		<key name="adonis_events_individual_text_*"/>
+    		<key name="adonis_events_text"/>
+    		<key name="adonis_events_link"/>
+    		<key name="adonis_events_link_*"/>
+    		<key name="adonis_events_title_*"/>
+    		<key name="adonis_events_content_*"/>
+    		<key name="adonis_excerpt_more_text"/>
+    		<key name="adonis_featured_content_archive_title"/>
+    		<key name="adonis_featured_content_sub_title"/>
+    		<key name="adonis_featured_content_text"/>
+    		<key name="adonis_featured_content_link"/>
+    		<key name="adonis_featured_content_link_*"/>
+    		<key name="adonis_featured_content_title_*"/>
+    		<key name="adonis_featured_content_content_*"/>
+    		<key name="adonis_featured_link_*"/>
+    		<key name="adonis_featured_title_*"/>
+    		<key name="adonis_featured_content_*"/>
+    		<key name="adonis_featured_content_*"/>
+    		<key name="adonis_footer_content"/>
+    		<key name="adonis_hero_content_title"/>
+    		<key name="adonis_hero_content_content"/>
+    		<key name="adonis_hero_content_link"/>
+    		<key name="adonis_hero_content_more_text"/>
+    		<key name="adonis_hero_content_more_link"/>
+    		<key name="adonis_recent_posts_heading"/>
+    		<key name="adonis_recent_posts_subheading"/>
+    		<key name="adonis_portfolio_text"/>
+    		<key name="adonis_portfolio_link"/>
+    		<key name="adonis_portfolio_title_*"/>
+    		<key name="adonis_portfolio_text_*"/>
+    		<key name="adonis_portfolio_link_*"/>
+    		<key name="adonis_search_text"/>
+    		<key name="adonis_testimonial_headline"/>
+    		<key name="adonis_testimonial_subheadline"/>
+    		<key name="adonis_testimonial_link_*"/>
+    		<key name="_customize-input-adonis_testimonial_content_*"/>
+        </key>
+    </admin-texts>
+</wpml-config>

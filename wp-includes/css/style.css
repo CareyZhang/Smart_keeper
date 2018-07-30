@@ -1,3 +1,25 @@
+.tex
+{
+    margin: 0px 5px 0px 5px;
+	width:auto;
+	height:50px;
+	border-radius:3px;
+	cursor:pointer;
+	box-shadow:3px 3px 4px rgba(0,0,0,0.5);
+}
+.btn
+{
+	width:auto;
+	height:50px;
+	border-radius:3px;
+	cursor:pointer;
+	box-shadow:3px 3px 4px rgba(0,0,0,0.5);
+	margin:0px 3px;
+}
+h1
+{
+    font-size: 18px;
+}
 #body-core ul li
 {
     display:inline;
