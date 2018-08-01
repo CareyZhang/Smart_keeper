@@ -3505,7 +3505,6 @@ img#wpstats {
 	}
 	.main-navigation li a,
 	.main-navigation li {
-		display: inline-block;
 		text-decoration: none;
 	}
 	.nav-menu > li.menu-item-has-children > a:after {

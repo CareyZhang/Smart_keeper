@@ -23,6 +23,67 @@ if( ! defined( 'ABSPATH' ) ) {
 <html <?php language_attributes(); ?>>
 <!--<![endif]-->
 <head>
+<?php
+	$user = wp_get_current_user();
+    if ( in_array( 'administrator', (array) $user->roles ) )
+	{
+       echo "<style>
+	   			@media screen and (min-width: 600px) {
+	   				.default {display:inline-block; }
+					.default_block {display:block; }
+	   				.defaultt { display:none; }
+	   				.admin_show { display:inline-block; }
+					.admin_block { display:block; }
+				}
+			</style>";
+    }
+	else if ( in_array( 'user_high', (array) $user->roles ) )
+	{
+		echo "<style>
+				@media screen and (min-width: 600px) {
+					.default {display:inline-block; }
+					.default_block {display:block; }
+					.defaultt { display:none; }
+					.user_high_show { display:inline-block; }
+					.user_high_block {display:block; }
+				}
+			</style>";
+	}
+	else if ( in_array( 'medium_user', (array) $user->roles ) )
+	{
+		echo "<style>
+				@media screen and (min-width: 600px) {
+					.default {display:inline-block; }
+					.default_block {display:block; }
+					.defaultt { display:none; }
+					.medium_user_show { display:inline-block; }
+					.medium_user_block { display:block; }
+				}
+			</style>";
+	}
+	else if ( in_array( 'primary_user', (array) $user->roles ) )
+	{
+		echo "<style>
+				@media screen and (min-width: 600px) {
+					.default {display:inline-block; }
+					.default_block {display:block; }
+					.defaultt { display:none; }
+					.primary_user_show { display:inline-block; }
+					.primary_user_block { display:block; }
+				}
+			</style>";
+	}
+	else
+	{
+		echo "<style>
+				@media screen and (min-width: 600px) {
+					.default {display:inline-block; }
+					.default_block {display:block; }
+	   				.defaultt { display:none; }
+				}
+			</style>";
+	}
+?>
 
 	<meta charset="<?php bloginfo( 'charset' ); ?>" />
 	<meta name="viewport" content="width=device-width" />
@@ -33,43 +94,6 @@ if( ! defined( 'ABSPATH' ) ) {
 	<?php wp_head(); ?>
 
 </head>
-<?php
-	$user = wp_get_current_user();
-    if ( in_array( 'administrator', (array) $user->roles ) )
-	{
-       echo "<style>
-	   			.defaultt { display:none; }
-	   			.admin_show { display:inline-block; }
-			</style>";
-    }
-	else if ( in_array( 'user_high', (array) $user->roles ) )
-	{
-		echo "<style>
-	   			.defaultt { display:none; }
-	   			.user_high_show { display:inline-block; }
-			</style>";
-	}
-	else if ( in_array( 'medium_user', (array) $user->roles ) )
-	{
-		echo "<style>
-	   			.defaultt { display:none; }
-				.medium_user_show { display:inline-block; }
-			</style>";
-	}
-	else if ( in_array( 'primary_user', (array) $user->roles ) )
-	{
-		echo "<style>
-	   			.defaultt { display:none; }
-				.primary_user_show { display:inline-block; }
-			</style>";
-	}
-	else
-	{
-		echo "<style>
-	   			.defaultt { display:none; }
-			</style>";
-	}
-?>
 <body <?php body_class('stretched'); ?>>
 <!-- Main Wrapper Start -->
 <div id="main-wrapper">

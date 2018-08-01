@@ -1,5 +1,10 @@
 <div class="lrm-user-modal" style="visibility: hidden;"> <!-- this is the entire modal form, including the background -->
     <div class="lrm-user-modal-container"> <!-- this is the container wrapper -->
+		<?php
+		$user = wp_get_current_user();
+		if ( in_array( 'administrator', (array) $user->roles ) )
+		{
+		?>
         <ul class="lrm-switcher">
             <li><a href="#0" class="lrm-switch-to-link lrm-switch-to--login">
                     <?php echo LRM_Settings::get()->setting('messages/login/heading', true); ?>
@@ -9,6 +14,9 @@
                 </a></li>
         </ul>
 
+		<?
+			}
+		?>
         <div id="lrm-login"> <!-- log in form -->
             <form class="lrm-form" action="#0" data-action="login">
 
