@@ -6,8 +6,10 @@ var switch_pid;
 var mychart_id = -1;
 function init()
 {
-    var dateTime = new Date();
+    var now = new Date();
+    var dateTime = new Date().getTime();
     var tim = Math.floor(dateTime / 1000);
+    tim=tim-now.getHours()*3600-now.getMinutes()*60-now.getSeconds();
     lower=tim;
     upper=tim+86439;
     var str="".concat(upper,",",lower,",",mychart_id,",",_type);
@@ -26,52 +28,102 @@ function init()
 
 function draw_chart(up,lo,data)
 {
+	var which_id=-1;
+        var tmp=new Object();
+        var tmp_arr=[];
+        var data_count=0;
         var days=(up-lo)/86400;
         var day_arr=[];
         var data_arr=[];
         var div_content="<table><tr><td>Date</td><td>ID</td><td>Usage(kWh)</td></tr>";
-        for(var i=0;i<days;i++)
-        {
-                var t=(lo*1)+(i*86400);
-                day_arr.push(timeConverter_easy(t));
-        }
-        var which_id=-1;
-        var tmp=new Object();
-        var tmp_arr=[];
-        var data_count=0;
-        for(var key in data)
-        {
-                var index=Math.floor((data[key]._time-lo)/86400);
-                while(which_id!=data[key]._pid)
+	if(days<=3)
+	{
+		for(i=0;i<days;i++)
+		{
+			var t=(lo*1)+(i*86400);
+			for(j=0;j<24;j++)
+			{
+				day_arr.push(timeConverter_easy(t)+" "+j+":00");
+			}
+		}
+		for(var key in data)
                 {
-                        if(JSON.stringify(tmp)!=='{}')
+                        var index=Math.floor((data[key]._time-lo)/86400)*24+data[key]._hour;
+                        while(which_id!=data[key]._pid)
                         {
-                                tmp.data=tmp_arr;
-                                data_arr[data_count]=tmp;
-                                data_count++;
+                                if(JSON.stringify(tmp)!=='{}')
+                                {
+                                        tmp.data=tmp_arr;
+                                        data_arr[data_count]=tmp;
+                                        data_count++;
+                                }
+                                which_id++;
+                                tmp=new Object();
                         }
-                        which_id++;
-                        tmp=new Object();
+                        if(JSON.stringify(tmp)==='{}')
+                        {
+                                tmp_arr=[];
+                                tmp.label=data[key]._pid;
+                                var color="rgb(".concat(Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),")");
+                                tmp.borderColor=color;
+                                for(var i=0;i<days;i++)
+                                {
+					for(var j=0;j<24;j++)
+					{
+                                        	tmp_arr.push(0);
+					}
+                                }
+                        }
+                        tmp_arr[index]=data[key]._usage;
                 }
-                if(JSON.stringify(tmp)==='{}')
+		if(JSON.stringify(tmp)!=='{}')
                 {
-                        tmp_arr=[];
-                        tmp.label=data[key]._pid;
-                        var color="rgb(".concat(Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),")");
-                        tmp.borderColor=color;
-                        for(var i=0;i<days;i++)
-                        {
-                                tmp_arr.push(0);
-                        }
+                   tmp.data=tmp_arr;
+                   data_arr[data_count]=tmp;
+                   data_count++;
                 }
-                tmp_arr[index]=data[key]._usage;
-        }
-        if(JSON.stringify(tmp)!=='{}')
-        {
-           tmp.data=tmp_arr;
-           data_arr[data_count]=tmp;
-           data_count++;
-        }
+	}
+	else
+	{
+	        for(var i=0;i<days;i++)
+	        {
+	                var t=(lo*1)+(i*86400);
+	                day_arr.push(timeConverter_easy(t));
+	        }
+	        for(var key in data)
+	        {
+	                var index=Math.floor((data[key]._time-lo)/86400);
+	                while(which_id!=data[key]._pid)
+	                {
+	                        if(JSON.stringify(tmp)!=='{}')
+	                        {
+	                                tmp.data=tmp_arr;
+	                                data_arr[data_count]=tmp;
+	                                data_count++;
+	                        }
+	                        which_id++;
+	                        tmp=new Object();
+	                }
+	                if(JSON.stringify(tmp)==='{}')
+	                {
+	                        tmp_arr=[];
+	                        tmp.label=data[key]._pid;
+	                        var color="rgb(".concat(Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),")");
+	                        tmp.borderColor=color;
+	                        for(var i=0;i<days;i++)
+	                        {
+	                                tmp_arr.push(0);
+	                        }
+	                }
+	                tmp_arr[index]=data[key]._usage;
+	        }
+	        if(JSON.stringify(tmp)!=='{}')
+	        {
+	           tmp.data=tmp_arr;
+	           data_arr[data_count]=tmp;
+	           data_count++;
+	        }
+	}
         var ctx = document.getElementById('Chart').getContext('2d');
         var chart = new Chart(ctx, {
         // The type of chart we want to create
@@ -121,12 +173,12 @@ function on_off(pid)
         if(switch_status==true)
         {
                 //device on
-                document.getElementById("on_off").innerHTML="<input class='btn' type='button' value='Turn On later' onclick='turn_on_off(-1,1,1)'>";
+                document.getElementById("on_off").innerHTML="<input class='btn btn-dark' type='button' value='Turn On later' onclick='turn_on_off(-1,1,1)'>";
         }
         else
         {
                 //device off
-                document.getElementById("on_off").innerHTML="<input class='btn' type='button' value='Turn Off later' onclick='turn_on_off(-1,1,0)'>";
+                document.getElementById("on_off").innerHTML="<input class='btn btn-dark' type='button' value='Turn Off later' onclick='turn_on_off(-1,1,0)'>";
         }
 }
 
@@ -145,7 +197,6 @@ function turn_on_off(device_id,now_or_later,method)
         {
                 var str="".concat((_type*255+device_id),",",method,",",result,",",now_or_later);
                 socket.emit('Switch',str);
-                clos();
         }
         else
         {
@@ -164,9 +215,9 @@ function turn_on_off(device_id,now_or_later,method)
 
 function clos()
 {
-        $("#all").hide(0);
+       	$("#all").hide(0);
         $("#cover").hide(400);
-        document.getElementById('status_div').innerHTML="<canvas id='Chart' style='z-index:100002;'></canvas>"
+       	document.getElementById('status_div').innerHTML="<canvas id='Chart' style='z-index:100002;'></canvas>"
         init_count_status=0;
         var switch_status=document.getElementById('switch'+switch_pid).checked;
         document.getElementById('switch'+switch_pid).checked=!switch_status;

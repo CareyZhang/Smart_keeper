@@ -32,7 +32,7 @@
                     </select>
             </li>
             <li style="display:inline;">
-                    <input class="btn" id="sear" type="button" value="Search" onclick="_search()">
+                    <input class="btn  btn-dark" id="sear" type="button" value="Search" onclick="_search()">
             </li>
     </ul>
     <hr style="width:600px;">

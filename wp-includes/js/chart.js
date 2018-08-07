@@ -5,9 +5,10 @@ var _type = 0;
 var mychart_id = -1;
 function init()
 {
-    
-    var dateTime = new Date();
+    var now = new Date();
+    var dateTime = new Date().getTime();
     var tim = Math.floor(dateTime / 1000);
+    tim=tim-now.getHours()*3600-now.getMinutes()*60-now.getSeconds();
     lower=tim;
     upper=tim+86439;
     var str="".concat(upper,",",lower,",",mychart_id,",",_type);
@@ -51,61 +52,103 @@ function init()
 
 function draw_chart(up,lo,data,chart_id)
 {
+	var which_id=-1;
+        var tmp=new Object();
+        var tmp_arr=[];
+        var data_count=0;
 	var days=(up-lo)/86400;
 	var day_arr=[];
 	var data_arr=[];
         var div_content="<table><tr><td>Date</td><td>ID</td><td>Usage(kWh)</td></tr>";
-	for(var i=0;i<days;i++)
+	if(days<=3)
 	{
-		var t=(lo*1)+(i*86400);
-		day_arr.push(timeConverter_easy(t));
-	}
-	var which_id=-1;
-	var tmp=new Object();
-	var tmp_arr=[];
-	var data_count=0;
-        for(var key in data)
-	{
-		var index=Math.floor((data[key]._time-lo)/86400);
-		while(which_id!=data[key]._pid)
+		for(i=0;i<days;i++)
 		{
-			if(JSON.stringify(tmp)!=='{}')
+			var t=(lo*1)+(i*86400);
+			for(j=0;j<24;j++)
 			{
-				tmp.data=tmp_arr;
-				data_arr[data_count]=tmp;
-				data_count++;
-			}
-			which_id++;
-			tmp=new Object();
-		}
-		if(JSON.stringify(tmp)==='{}')
-		{
-			tmp_arr=[];
-			tmp.label=data[key]._pid;
-			var color="rgb(".concat(Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),")");
-			tmp.borderColor=color;
-			for(var i=0;i<days;i++)
-			{
-				tmp_arr.push(0);
+				day_arr.push(timeConverter_easy(t)+" "+j+":00");
 			}
 		}
-		tmp_arr[index]=data[key]._usage;
-	}
-	if(JSON.stringify(tmp)!=='{}')
-        {
-           tmp.data=tmp_arr;
-           data_arr[data_count]=tmp;
-	   data_count++;
-        }
-	var ctx;
-	if(chart_id==0)
-	{
-		ctx = document.getElementById('myChart').getContext('2d');
+		for(var key in data)
+                {
+                        var index=Math.floor((data[key]._time-lo)/86400)*24+data[key]._hour;
+                        while(which_id!=data[key]._pid)
+                        {
+                                if(JSON.stringify(tmp)!=='{}')
+                                {
+                                        tmp.data=tmp_arr;
+                                        data_arr[data_count]=tmp;
+                                        data_count++;
+                                }
+                                which_id++;
+                                tmp=new Object();
+                        }
+                        if(JSON.stringify(tmp)==='{}')
+                        {
+                                tmp_arr=[];
+                                tmp.label=data[key]._pid;
+                                var color="rgb(".concat(Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),")");
+                                tmp.borderColor=color;
+                                for(var i=0;i<days;i++)
+                                {
+					for(var j=0;j<24;j++)
+					{
+                                        	tmp_arr.push(0);
+					}
+                                }
+                        }
+                        tmp_arr[index]=data[key]._usage;
+                }
+		if(JSON.stringify(tmp)!=='{}')
+                {
+                   tmp.data=tmp_arr;
+                   data_arr[data_count]=tmp;
+                   data_count++;
+                }
 	}
 	else
 	{
-		ctx = document.getElementById('Chart').getContext('2d');
+		for(var i=0;i<days;i++)
+		{
+			var t=(lo*1)+(i*86400);
+			day_arr.push(timeConverter_easy(t));
+		}
+	        for(var key in data)
+		{
+			var index=Math.floor((data[key]._time-lo)/86400);
+			while(which_id!=data[key]._pid)
+			{
+				if(JSON.stringify(tmp)!=='{}')
+				{
+					tmp.data=tmp_arr;
+					data_arr[data_count]=tmp;
+					data_count++;
+				}
+				which_id++;
+				tmp=new Object();
+			}
+			if(JSON.stringify(tmp)==='{}')
+			{
+				tmp_arr=[];
+				tmp.label=data[key]._pid;
+				var color="rgb(".concat(Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),",",Math.floor(Math.random()*256),")");
+				tmp.borderColor=color;
+				for(var i=0;i<days;i++)
+				{
+					tmp_arr.push(0);
+				}
+			}
+			tmp_arr[index]=data[key]._usage;
+		}
+		if(JSON.stringify(tmp)!=='{}')
+	        {
+	           tmp.data=tmp_arr;
+	           data_arr[data_count]=tmp;
+		   data_count++;
+	        }
 	}
+	var ctx = document.getElementById('myChart').getContext('2d');
 	var chart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'line',
