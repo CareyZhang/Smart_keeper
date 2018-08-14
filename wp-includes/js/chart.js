@@ -10,7 +10,7 @@ function init()
     var tim = Math.floor(dateTime / 1000);
     tim=tim-now.getHours()*3600-now.getMinutes()*60-now.getSeconds();
     lower=tim;
-    upper=tim+86439;
+    upper=tim+86400;
     var str="".concat(upper,",",lower,",",mychart_id,",",_type);
     var socket = io.connect('http://140.125.33.31:8080');
     socket.emit('Data',str);
