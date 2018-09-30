@@ -17,10 +17,10 @@ function init()
 				</thead>`;
 		for(var key in data)
 		{
-			str+="<tr><th>"+data[key]._pid+"</th><th>"+data[key].used+"</th><th>"+data[key].used*fee+"</th></tr>"
+			str+="<tr><th>"+data[key]._pid+"</th><th>"+data[key].used.toFixed(1)+"</th><th>"+(data[key].used*fee).toFixed(1)+"</th></tr>"
 			total_used=total_used*1+data[key].used*1
 		}
-		str+="<tr style='border-top:1px double #000;'><th>Total</th><th>"+total_used+"</th><th>"+Math.round(total_used*fee)+"</th></tr></table>"
+		str+="<tr style='border-top:1px double #000;'><th>Total</th><th>"+total_used.toFixed(1)+"</th><th>"+Math.round(total_used*fee)+"</th></tr></table>"
 		document.getElementById("bill_div").innerHTML=str
         });
     year_init();
