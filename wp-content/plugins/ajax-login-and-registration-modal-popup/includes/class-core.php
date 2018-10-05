@@ -17,6 +17,7 @@ class LRM_Core {
         require_once LRM_PATH . '/includes/class-mailer.php';
         require_once LRM_PATH . '/includes/class-settings.php';
         require_once LRM_PATH . '/includes/class-ajax.php';
+        require_once LRM_PATH . '/includes/class-admin-menus.php';
 
         LRM_Settings::get();
 
@@ -30,12 +31,26 @@ class LRM_Core {
         }
 
         add_action('wp_loaded', array($this, 'process_ajax'), 12);
+
+        // RUN PRO UPDATER
+        if ( is_admin() && lrm_is_pro() ) {
+
+            require 'plugin-update-checker/plugin-update-checker.php';
+            $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+                'https://addons-updater.wp-vote.net/?action=get_metadata&slug=ajax-login-and-registration-modal-popup-pro',
+                LRM_PRO_PATH . 'login-registration-modal-pro.php', //Full path to the main plugin file or functions.php.
+                'ajax-login-and-registration-modal-popup-pro'
+            );
+        }
+
         //if ( class_exists('LRM_Pro') ) {
         //} else {
         //    $this->process_ajax();
         //}
 
         add_filter('plugin_action_links_' . LRM_BASENAME, array($this, 'add_settings_link'));
+
+        new LRM_Admin_Menus();
     }
 
     /**
@@ -90,6 +105,8 @@ class LRM_Core {
         if ( !empty($_REQUEST['lrm_action']) ) {
             $lrm_action = sanitize_key($_REQUEST['lrm_action']);
 
+            define("LRM_IS_AJAX", true);
+
             do_action( 'wp_ajax_nopriv_lrm_' . $lrm_action );
             die();
         }
@@ -112,9 +129,9 @@ class LRM_Core {
      * @param string    $function
      * @return mixed
      */
-    public function call_pro($function) {
+    public function call_pro($function, $param1 = false) {
         if ( class_exists('LRM_Pro') ) {
-            return LRM_Pro::get()->$function();
+            return LRM_Pro::get()->$function($param1);
         }
     }
 
@@ -140,9 +157,9 @@ class LRM_Core {
             return;
         }
 
-        wp_enqueue_script('lrm-modal', LRM_URL . '/assets/lrm-core.js', array('jquery'), LRM_ASSETS_VER, true);
+        wp_enqueue_script('lrm-modal', LRM_URL . 'assets/lrm-core.js', array('jquery'), LRM_ASSETS_VER, true);
 
-        wp_enqueue_style('lrm-modal', LRM_URL . '/assets/lrm-core.css', false, LRM_ASSETS_VER);
+        wp_enqueue_style('lrm-modal', LRM_URL . 'assets/lrm-core.css', false, LRM_ASSETS_VER);
 
         $script_params = array(
             'redirect_url'       => '',
@@ -159,6 +176,7 @@ class LRM_Core {
 
         wp_localize_script('lrm-modal', 'LRM', $script_params);
     }
+
     public function render_form() {
 
         require LRM_PATH . '/views/form.php';

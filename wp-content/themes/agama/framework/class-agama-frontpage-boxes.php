@@ -30,13 +30,14 @@ class Agama_Front_Page_Boxes {
 	private static function get_options() {
 		global $boxes, $box, $enabled, $global;
 		
-		$enabled				= esc_attr( get_theme_mod( 'agama_frontpage_boxes', true ) );
+		$enabled				= esc_attr( get_theme_mod( 'agama_frontpage_boxes', false ) );
 		$boxes['visibility'] 	= esc_attr( get_theme_mod( 'agama_frontpage_boxes_visibility', 'homepage' ) );
+        $boxes['heading']       = esc_html( get_theme_mod( 'agama_frontpage_boxes_heading', esc_html__( 'Front Page Boxes', 'agama' ) ) );
 		
-		$box[1]['enable'] 		= esc_attr( get_theme_mod( 'agama_frontpage_box_1_enable', true ) );
-		$box[2]['enable'] 		= esc_attr( get_theme_mod( 'agama_frontpage_box_2_enable', true ) );
-		$box[3]['enable']		= esc_attr( get_theme_mod( 'agama_frontpage_box_3_enable', true ) );
-		$box[4]['enable'] 		= esc_attr( get_theme_mod( 'agama_frontpage_box_4_enable', true ) );
+		$box[1]['enable'] 		= esc_attr( get_theme_mod( 'agama_frontpage_box_1_enable', false ) );
+		$box[2]['enable'] 		= esc_attr( get_theme_mod( 'agama_frontpage_box_2_enable', false ) );
+		$box[3]['enable']		= esc_attr( get_theme_mod( 'agama_frontpage_box_3_enable', false ) );
+		$box[4]['enable'] 		= esc_attr( get_theme_mod( 'agama_frontpage_box_4_enable', false ) );
 		
 		if( $box[1]['enable'] || $box[2]['enable'] || $box[3]['enable'] || $box[4]['enable'] ) {
 			$boxes['enabled'] = true;
@@ -138,6 +139,9 @@ class Agama_Front_Page_Boxes {
 			$enabled && $boxes['enabled'] && $boxes['visibility'] == 'allpages' 
 		) {
 			echo '<div id="frontpage-boxes" class="clearfix">';
+                if( $boxes['heading'] ) {
+                    echo '<h1>'. $boxes['heading'] .'</h1>';
+                }
 				if( $box[1]['enable'] ) {
 					echo '<!-- Frontpage Box 1 -->';
 					echo '<div class="'. $box['class'] .' fbox-1"'. $box[1]['data-animated'] .'>';

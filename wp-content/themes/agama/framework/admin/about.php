@@ -28,7 +28,7 @@ if( ! class_exists( 'Agama_About' ) ) {
         function admin_enqueue_scripts() {
             $screen = get_current_screen();
             if( $screen->base == 'appearance_page_about-agama' ) {
-                wp_enqueue_style( 'agama-about', AGAMA_CSS . 'backend-about.css', array(), Agama_Core::version() );
+                wp_enqueue_style( 'agama-about', AGAMA_CSS . 'backend-about.css', array(), agama_version );
             }
         }
 		
@@ -54,8 +54,9 @@ if( ! class_exists( 'Agama_About' ) ) {
 		 */
 		public function render_page() {
             $FuryScreenURI = AGAMA_IMG . 'promo/themevision-logo.jpg';
+            $readme = AGAMA_DIR . 'README.txt';
 			echo '<div class="wrap about-wrap">';
-				echo '<h1>'.sprintf( __( 'Welcome to Agama v%s', 'agama' ), Agama_Core::version() ).'</h1>';
+				echo '<h1>'.sprintf( __( 'Welcome to Agama v%s', 'agama' ), agama_version ).'</h1>';
 				
 				echo '<div class="about-text">';
 					echo __( 'Thank you for using Agama theme!', 'agama' ).'<br>';
@@ -86,10 +87,14 @@ if( ! class_exists( 'Agama_About' ) ) {
 				echo '</h2>';
 				
 				echo '<div class="changelog point-releases">';
-					echo sprintf( '<h3>Changelog Agama v%s</h3>', Agama_Core::version() );
-                    echo '<p>* Added plugin (TGM) recommendations feature.</p>';
-                    echo '<p>* Fixed some of accessibility issues.</p>';
-                    echo '<p>* Updated theme translation files.</p>';
+					echo '<h3>'. esc_html__( 'Theme Changelog', 'agama' ) .'</h3>';
+                    if( file_exists( $readme ) ) {
+                        echo '<textarea rows="15" cols="170">';
+                            foreach( file( $readme ) as $text ) {
+                                echo $text;
+                            }
+                        echo '</textarea>';
+                    }
 				echo '</div>';
             
                 echo '<h2 class="nav-tab-wrapper vision-themes">';

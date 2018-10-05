@@ -339,14 +339,17 @@ function _wp_menu_item_classes_by_context( &$menu_items ) {
 	foreach ( (array) $menu_items as $key => $menu_item ) {
 
 		$menu_items[$key]->current = false;
-		$classes = (array)$menu_item->classes;
+
+		$classes = (array) $menu_item->classes;
 		$classes[] = 'menu-item';
 		$classes[] = 'menu-item-type-' . $menu_item->type;
 		$classes[] = 'menu-item-object-' . $menu_item->object;
+
 		// This menu item is set as the 'Front Page'.
 		if ( 'post_type' === $menu_item->type && $front_page_id === (int) $menu_item->object_id ) {
 			$classes[] = 'menu-item-home';
 		}
+
 		// if the menu item corresponds to a taxonomy term for the currently-queried non-hierarchical post object
 		if ( $wp_query->is_singular && 'taxonomy' == $menu_item->type && in_array( $menu_item->object_id, $possible_object_parents ) ) {
 			$active_parent_object_ids[] = (int) $menu_item->object_id;
@@ -443,13 +446,11 @@ function _wp_menu_item_classes_by_context( &$menu_items ) {
 			if ( untrailingslashit($item_url) == home_url() )
 				$classes[] = 'menu-item-home';
 		}
+
 		// back-compat with wp_page_menu: add "current_page_parent" to static home page link for any non-page query
 		if ( ! empty( $home_page_id ) && 'post_type' == $menu_item->type && empty( $wp_query->is_page ) && $home_page_id == $menu_item->object_id )
 			$classes[] = 'current_page_parent';
-		/*foreach($menu_item->classes as $class_val)
-		{
-			$classes[] = $class_val;
-		}*/
+
 		$menu_items[$key]->classes = array_unique( $classes );
 	}
 	$active_ancestor_item_ids = array_filter( array_unique( $active_ancestor_item_ids ) );
@@ -507,6 +508,7 @@ function _wp_menu_item_classes_by_context( &$menu_items ) {
 			if ( in_array('current-menu-ancestor', $classes) )
 				$classes[] = 'current_page_ancestor';
 		}
+
 		$menu_items[$key]->classes = array_unique( $classes );
 	}
 }

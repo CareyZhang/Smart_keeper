@@ -2,16 +2,20 @@
 Theme Name: Agama Blue
 Theme URI: http://www.theme-vision.com/agama-blue/
 Description: Agama Blue is child theme of Agama. Check demo: http://demo.theme-vision.com/
-Version: 1.0.9
+Version: 1.1.0
 Author: ThemeVision
 Author URI: http://www.theme-vision.com/
 Template: agama
-Template Version: 1.3.2
+Template Version: 1.3.7
 Tags: one-column, two-columns, right-sidebar, left-sidebar, grid-layout, flexible-header, accessibility-ready, buddypress, custom-background, custom-header, custom-logo, custom-menu, custom-colors, editor-style, featured-image-header, featured-images, full-width-template, footer-widgets, microformats, post-formats, rtl-language-support, sticky-post, theme-options, threaded-comments, translation-ready, blog, e-commerce, education, entertainment, holiday
 Text Domain: agama-blue
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
+
+body.home.blog .vision-row {
+    padding-top: 0;
+}
 
 .center { text-align: center !important; }
 
@@ -94,7 +98,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
  *----------------------------------------------*/
 .section-blog {
     position: absolute;
-    margin: 60px 0;
+    margin: 0;
     padding: 60px 0;
     background-color: #F9F9F9;
     overflow: hidden;
@@ -103,8 +107,12 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 	height: 178px;
 }
 .container-blog { 
-	margin-top: 360px; 
+	margin-top: 230px; 
 	margin-bottom: 50px; 
+}
+.container-blog .article-wrapper {
+    margin-bottom: 0 !important;
+    border-bottom: none !important;
 }
 .container-blog .more-link {
 	margin-top: 20px;
@@ -215,6 +223,9 @@ body:not(.device-touch) .entry-link {
 	font-weight: 400;
 	font-family: 'Crete Round', serif;
 	font-style: italic;
+}
+.container-blog #nav-below {
+    margin: 0;
 }
  
 /* Individual Post

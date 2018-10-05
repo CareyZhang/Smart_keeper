@@ -10,10 +10,12 @@ class LRM_AJAX
 {
 
     public static function login() {
+        $start = microtime(true);
+
         // First check the nonce, if it fails the function will break
         self::_verify_nonce( 'security-login', 'ajax-login-nonce' );
 
-        LRM_Core::get()->call_pro('check_captcha');
+        LRM_Core::get()->call_pro('check_captcha', 'login');
 
         // Nonce is checked, get the POST data and sign user on
         $info = array();
@@ -69,7 +71,11 @@ class LRM_AJAX
 
             $message = LRM_Settings::get()->setting('general/registration/reload_after_login') ? LRM_Settings::get()->setting('messages/login/success') : LRM_Settings::get()->setting('messages/login/success_no_reload');
 
-            wp_send_json_success(array('logged_in' => true,'message'=>$message));
+            wp_send_json_success(array(
+                'logged_in' => true,
+                'user_id'   => $user_signon->ID,
+                'message'   => $message
+            ));
         }
     }
 
@@ -77,25 +83,30 @@ class LRM_AJAX
         // Verify nonce
         self::_verify_nonce( 'security-signup', 'ajax-signup-nonce' );
 
-        LRM_Core::get()->call_pro('check_captcha');
+        LRM_Core::get()->call_pro('check_captcha', 'signup' );
 
         if ( !get_option('users_can_register') ) :
             wp_send_json_error(array('message' => LRM_Settings::get()->setting('messages/registration/disabled')));
         endif;
 
+        $email = sanitize_email($_POST['email']);
+
         // Post values
-        $user_login = sanitize_user(trim($_POST['username']));
-        
+        if ( ! LRM_Settings::get()->setting('general_pro/all/hide_username') ) {
+            $user_login = sanitize_user(trim($_POST['username']));
+        } else {
+            $email_arr = explode('@', $email);
+            $user_login = sanitize_user(trim($email_arr[0]), true);
+        }
+
         $display_first_and_last_name = LRM_Settings::get()->setting('general/registration/display_first_and_last_name');
-        
+
         if ( $display_first_and_last_name ) {
             $first_name = sanitize_text_field( $_POST['first-name'] );
-            $last_name  = sanitize_text_field( $_POST['last-name'] );
+            $last_name  = ! empty($_POST['last-name']) ? sanitize_text_field( $_POST['last-name'] ) : '';
         }
         
-        $email = sanitize_email($_POST['email']);
-        
-        if ( isset( $_POST['password'] ) && LRM_Settings::get()->setting('general_pro/all/allow_user_set_password') ) {
+        if ( !empty( $_POST['password'] ) && LRM_Settings::get()->setting('general_pro/all/allow_user_set_password') ) {
             $password =  sanitize_text_field($_POST['password']);
 
             // Defined in: "\wp-includes\default-filters.php"
@@ -103,7 +114,6 @@ class LRM_AJAX
         } else {
             $password = wp_generate_password(10, true);
         }
-
 
         if ( !$user_login ) {
             wp_send_json_error(array('message' => LRM_Settings::get()->setting('messages/registration/no_username'), 'for'=>'username'));
@@ -171,32 +181,36 @@ class LRM_AJAX
                 $info['user_password'] = $userdata['user_pass'];
                 $info['remember'] = true;
 
-                $user_signon = wp_signon( $info, false );
+                $user_signon = wp_signon( $info );
             }
 
-            $subject = LRM_Settings::get()->setting('mails/registration/subject');
+            if ( apply_filters( "lrm/mails/registration/is_need_send", true, $user_id, $userdata, $user_signon) ) {
 
-            $mail_body = str_replace(
-                array(
-                    '{{USERNAME}}',
-                    '{{PASSWORD}}',
-                    '{{LOGIN_URL}}',
-                ),
-                array(
-                    $user_login,
-                    $userdata['user_pass'],
-                    wp_login_url(),
-                ),
-                LRM_Settings::get()->setting('mails/registration/body')
-            );
+                $subject = LRM_Settings::get()->setting('mails/registration/subject');
 
-            $mail_body = apply_filters( "lrm/mails/registration/body", $mail_body, $user_login, $userdata );
+                $mail_body = str_replace(
+                    array(
+                        '{{USERNAME}}',
+                        '{{PASSWORD}}',
+                        '{{LOGIN_URL}}',
+                    ),
+                    array(
+                        $user_login,
+                        $userdata['user_pass'],
+                        wp_login_url(),
+                    ),
+                    LRM_Settings::get()->setting('mails/registration/body')
+                );
 
-            $mail_sent = LRM_Mailer::send( $email, $subject, $mail_body );
+                $mail_body = apply_filters("lrm/mails/registration/body", $mail_body, $user_login, $userdata);
+
+                $mail_sent = LRM_Mailer::send($email, $subject, $mail_body, 'registration');
+            }
 
             if ( $user_signon && !is_wp_error($user_signon) ) {
                 wp_send_json_success( array(
                     'logged_in' => true,
+                    'user_id'   => $user_id,
                     'message'   => LRM_Settings::get()->setting( 'messages/registration/success' )
                 ) );
             } else {
@@ -223,7 +237,7 @@ class LRM_AJAX
 
         $account = sanitize_text_field( trim($_POST['user_login']) );
 
-        LRM_Core::get()->call_pro('check_captcha');
+        LRM_Core::get()->call_pro('check_captcha', 'lostpassword');
 
         if( empty( $account ) ) {
             $errors->add('invalid_email', LRM_Settings::get()->setting('messages/lost_password/invalid_email'));
@@ -285,6 +299,8 @@ class LRM_AJAX
                     );
                 }
 
+                $reset_pass_url = apply_filters( 'lrm/lost_password/link', $reset_pass_url, $password_reset_key, $user );
+
                 $mail_body = str_replace(
                     array(
                         '{{USERNAME}}',
@@ -299,7 +315,7 @@ class LRM_AJAX
                     LRM_Settings::get()->setting('mails/lost_password/body')
                 );
 
-                $mail_sent = LRM_Mailer::send( $to, $subject, $mail_body );
+                $mail_sent = LRM_Mailer::send( $to, $subject, $mail_body, 'lost_password' );
 
                 if( !$mail_sent ) {
                     $errors->add('unable_send', LRM_Settings::get()->setting('messages/lost_password/unable_send'));
@@ -325,7 +341,7 @@ class LRM_AJAX
         }
     }
 
-    public function _verify_nonce( $post_key, $nonce_key ) {
+    public static function _verify_nonce( $post_key, $nonce_key ) {
         if ( defined("WP_CACHE") ) {
             return true;
         }

@@ -23,12 +23,12 @@ add_action( 'customize_register', function( $wp_customize ) {
             wp_deregister_style( 'font-awesome' );
             
             // Enqueue FontAwesome from theme assets.
-            wp_enqueue_style( 'font-awesome', AGAMA_URI . 'assets/css/font-awesome.min.css', array(), Agama_Core::version() );
+            wp_enqueue_style( 'font-awesome', AGAMA_URI . 'assets/css/font-awesome.min.css', array(), agama_version );
             
-            wp_enqueue_style( 'agip', $uri . 'assets/css/icon-picker.css', array(), Agama_Core::version() );
+            wp_enqueue_style( 'agip', $uri . 'assets/css/icon-picker.css', array(), agama_version );
             
-            wp_enqueue_script( 'agip-control', $uri . 'assets/js/icon-picker-control.js', array(), Agama_Core::version() );
-            wp_enqueue_script( 'agip', $uri . 'assets/js/icon-picker.js', array(), Agama_Core::version() );
+            wp_enqueue_script( 'agip-control', $uri . 'assets/js/icon-picker-control.js', array(), agama_version );
+            wp_enqueue_script( 'agip', $uri . 'assets/js/icon-picker.js', array(), agama_version );
         }
         public function render_content() { ?>
             <label for="preview_agip_icon">

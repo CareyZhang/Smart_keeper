@@ -4,7 +4,7 @@
  *
  * @package Theme-Vision
  * @subpackage Agama
- * @since Agama
+ * @since 1.0
  */
 
 // Do not allow direct access to the file.

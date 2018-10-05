@@ -66,12 +66,12 @@ class LRM_Settings {
 
         if ( lrm_is_pro() ) {
 
-            if ( !defined("LRM_PRO_VERSION") || version_compare(LRM_PRO_VERSION, '1.16', '<') ) {
+            if ( !defined("LRM_PRO_VERSION") || version_compare(LRM_PRO_VERSION, '1.22', '<') ) {
 
                 echo '<div class="notice notice-info notification-notice"><p>';
 
                 printf(
-                    'Looks like newer version of "AJAX Login and Registration modal popup PRO" plugin available! Please login yo your cabinet and <a href="%s" target="_blank">download it</a>!',
+                    'Looks like newer version of "AJAX Login and Registration modal popup PRO" plugin available! Please go to Plugins menu and run the update or open your cabinet and <a href="%s" target="_blank">download it</a>!',
                     'https://maxim-kaminsky.com/shop/my-account/orders/'
                 );
 
@@ -79,7 +79,8 @@ class LRM_Settings {
             }
 
             // Update notice for 1.18 > 1.20
-            if ( 
+            if (
+                lrm_is_pro( 1.17 ) &&
                 LRM_Pro_User_Verification::link_verification_is_on()
                 && false ===  strpos( LRM_Settings::get()->setting('mails/registration/body'), '{{VERIFY_ACCOUNT_URL}}' )
             ) {
@@ -224,7 +225,7 @@ class LRM_Settings {
                 'slug'        => 'reload_after_login',
                 'name'        => __('Reload page after login/registration?', 'ajax-login-and-registration-modal-popup' ),
                 'default'     => 'true',
-                'description' => 'Does not have sense with option "' . __('User must confirm email after registration?', 'ajax-login-and-registration-modal-popup' ) . '" enabled.',
+                'description' => 'During registration that option only work if «' . __('User must confirm email after registration?', 'ajax-login-and-registration-modal-popup' ) . '» option is disabled.',
                 'render'      => array( new CoreFields\Checkbox(), 'input' ),
                 'sanitize'    => array( new CoreFields\Checkbox(), 'sanitize' ),
             ) )
@@ -257,6 +258,21 @@ class LRM_Settings {
             ) )
         ->description( __('Use your custom selector to find button/link for attach modal.', 'ajax-login-and-registration-modal-popup' ) );
 
+        $ADVANCED_SECTION->add_group( __( 'Data validation', 'ajax-login-and-registration-modal-popup' ), 'validation' )
+            ->add_field( array(
+                'slug'        => 'type',
+                'name'        => __('Data validation method', 'ajax-login-and-registration-modal-popup'),
+                'addons'      => array(
+                    'options'     => array(
+                        'both'      => 'Both (browser and server)',
+                        'server'    => 'Server only - more requests, no browser default messages',
+                    ),
+                ),
+                'default'     => 'both',
+                'description' => __('With using "server" method you can avoid displaying default browser "field invalid" messages and gives more customization options.', 'ajax-login-and-registration-modal-popup' ),
+                'render'      => array( new CoreFields\Select(), 'input' ),
+                'sanitize'    => array( new CoreFields\Select(), 'sanitize' ),
+            ) );
 
         $EMAILS_SECTION = $this->settings->add_section( __( 'Emails', 'ajax-login-and-registration-modal-popup' ), 'mails' );
 
@@ -639,6 +655,8 @@ class LRM_Settings {
         }
 
         do_action('lrm/register_settings', $this->settings);
+
+        $this->register_wpml_strings();
     }
 
 
@@ -674,16 +692,24 @@ class LRM_Settings {
      */
     public function setting($setting_slug, $do_stripslashes = false) {
 
-        $value = $this->settings->get_setting( $setting_slug );
+        $setting_path = explode('/', $setting_slug);
 
+        $value = $this->_get_maybe_wpml_translated_string($setting_slug, $setting_path[0]);
+
+        if ( null !== $value ) {
+            return stripslashes($value);
+        }
+
+        $value = $this->settings->get_setting( $setting_slug );
         // IF Value is empty and it's message string - try to get translated
 
-        if ( 0 === strpos($setting_slug, 'messages/') || 0 === strpos($setting_slug, 'mails/') ) {
+
+        if ( $setting_path[0] == 'messages' || $setting_path[0] == 'mails' ) {
 
             $value = stripslashes($value);
         }
 
-        if (!$value && 0 === strpos($setting_slug, 'messages/') && defined("LRM/SETTINGS/TRY_GET_TRANSLATED")) {
+        if (!$value && $setting_path[0] == 'messages' && defined("LRM/SETTINGS/TRY_GET_TRANSLATED")) {
             $fields = $this->get_section_settings_fields('messages');
 
             $default_value = $fields[$setting_slug]->default_value();
@@ -698,6 +724,76 @@ class LRM_Settings {
 
         return $do_stripslashes ? stripslashes( $value ) : $value;
 
+    }
+
+    /**
+     * Get translated option value (string)
+     * If enabled WPML - then try return translated
+     *
+     * @param string $setting_slug
+     * @param $section_slug
+     *
+     * @return string
+     * @since 1.33
+     */
+    protected function _get_maybe_wpml_translated_string($setting_slug, $section_slug) {
+
+        // && isset($this->wpml_labels[$key])
+        if ( class_exists('SitePress') ) {
+
+            // SKIP if we on Default language
+            global $sitepress;
+
+            $current_language = $sitepress->get_current_language();
+            $default_language = $sitepress->get_default_language();
+
+            /**
+             * Switch Language for AJAX
+             * @since 1.33
+             */
+            if ( defined("LRM_IS_AJAX") ) {
+                /**
+                 * @var WPML_Language_Resolution $wpml_language_resolution
+                 */
+                global $wpml_language_resolution;
+
+                if ($current_language != $wpml_language_resolution->get_referrer_language_code()) {
+                    $sitepress->switch_lang($wpml_language_resolution->get_referrer_language_code());
+                    $current_language = $sitepress->get_current_language();
+                }
+            }
+
+            if ( $default_language == $current_language ) {
+                return null;
+            }
+
+            $fields = $this->get_section_settings_fields($section_slug);
+            return icl_translate('AJAX Login & Registration modal', $fields[$setting_slug]->name(). ' [' . $fields[$setting_slug]->group() . '/' .$fields[$setting_slug]->slug() . ']', $fields[$setting_slug]->default_value());
+        }
+        return null;
+    }
+
+    /**
+     * Add strings to WPML strings translator
+     *
+     * @since 1.33
+     */
+    protected function register_wpml_strings() {
+        if ( class_exists('SitePress') ) {
+            $messages = $this->get_section_settings_fields('messages');
+            $mails = $this->get_section_settings_fields('mails');
+
+            $all = $messages + $mails;
+
+            if ( lrm_is_pro() ) {
+                $messages_pro = $this->get_section_settings_fields('messages_pro');
+                $all = $all + $messages_pro;
+            }
+
+            foreach ($all as $key => $field) {
+                icl_register_string('AJAX Login & Registration modal', $field->name(). ' [' . $field->group() . '/' .$field->slug() . ']', $field->default_value());
+            }
+        }
     }
 
 
@@ -719,7 +815,7 @@ class LRM_Settings {
         foreach ( $section->get_groups() as $group_slug => $group ) {
 
             foreach ( $group->get_fields() as $field_slug => $field ) {
-                $fields[ $section . '/' . $group_slug . '/' . $field_slug ] = $field;
+                $fields[ $section_slug . '/' . $group_slug . '/' . $field_slug ] = $field;
             }
         }
 

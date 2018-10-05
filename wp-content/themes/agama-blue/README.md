@@ -16,10 +16,16 @@ Agama Blue is distributed under the terms of the GNU GPL.
 ## Image Credits
 
 Image used on screenshot:
- * Pexels.com - https://www.pexels.com/photo/silver-imac-near-white-ceramic-kettle-205316/ - CC0 1.0 License
- * Pexels.com - https://www.pexels.com/photo/white-android-computer-monitor-turned-on-159394/ - CC0 1.0 License
+ * Pexels.com - https://www.pexels.com/@rawpixel - CC0 1.0 License
  
 ## Changelog
+
+= 1.1.0 - 25 August 2018 =
+* Added home page blog section pagination feature.
+* Removed "agama_blue_enqueue_scripts" function. (Agama theme handles automatically child styles).
+* Removed "frontpage-blog.php" file from "includes" folder (The code is now in index.php).
+* Removed "Posts per Page" feature from Agama Blue Options in Customizer.
+* Updated theme language pot file.
 
 = 1.0.9 - 13 February 2018 =
 * Minor updates.

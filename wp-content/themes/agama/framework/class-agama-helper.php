@@ -135,6 +135,16 @@ class Agama_Helper {
     public static function get_infinite_scroll_load_more_btn() {
         $enabled = esc_attr( get_theme_mod( 'agama_blog_infinite_scroll', false ) );
         $trigger = esc_attr( get_theme_mod( 'agama_blog_infinite_trigger', 'button' ) );
+        if( $enabled ) {
+            echo '<div class="infscr-load-status">';
+                echo '<div class="loader-ellips infinite-scroll-request">';
+                    echo '<span class="loader-ellips__dot"></span>';
+                    echo '<span class="loader-ellips__dot"></span>';
+                    echo '<span class="loader-ellips__dot"></span>';
+                    echo '<span class="loader-ellips__dot"></span>';
+                echo '</div>';
+            echo '</div>';
+        }
         if( $enabled && $trigger == 'button' ) {
             echo '<a id="infinite-loadmore" class="button button-3d button-rounded">';
                 echo '<i class="fa fa-spinner fa-spin"></i> '. __( 'Load More', 'agama' );
@@ -218,14 +228,6 @@ class Agama_Helper {
 		//Return rgb(a) color string
 		return $output;
 	}
-	
-	/**
-	 * Get Agama Blue Contents
-	 *
-	 * @since 1.2.9.1
-	 */
-	public static function get_agama_blue_contents() {
-		if( has_action( 'agama_blue_contents' ) )
-			do_action( 'agama_blue_contents' );
-	}
 }
+
+/* Omit closing PHP tag to avoid "Headers already sent" issues. */

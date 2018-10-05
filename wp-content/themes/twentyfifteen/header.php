@@ -15,9 +15,6 @@
 	<meta name="viewport" content="width=device-width">
 	<link rel="profile" href="http://gmpg.org/xfn/11">
 	<link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>">
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-	<script type="text/javascript" src="/wp-content/plugins/ajax-login-and-registration-modal-popup/assets/lrm-core.js?ver=13"></script>
-	<link rel="stylesheet" id="lrm-modal-css" href="/wp-content/plugins/ajax-login-and-registration-modal-popup/assets/lrm-core.css?ver=13" type="text/css" media="all">
 	<!--[if lt IE 9]>
 	<script src="<?php echo esc_url( get_template_directory_uri() ); ?>/js/html5.js"></script>
 	<![endif]-->

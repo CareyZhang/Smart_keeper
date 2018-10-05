@@ -11,6 +11,7 @@ var THEMEVISION = THEMEVISION || {};
 			THEMEVISION.initialize.responsiveClasses();
 			THEMEVISION.initialize.slider();
             THEMEVISION.initialize.blogGridIsotope();
+            THEMEVISION.initialize.blogInfiniteScroll();
 			THEMEVISION.initialize.goToTop();
 			
 		},
@@ -239,6 +240,99 @@ var THEMEVISION = THEMEVISION || {};
                         itemSelector: 'div.article-wrapper'
                     });
                 });
+            }
+        },
+        
+        blogInfiniteScroll: function() {
+            if( agama.infinite_scroll == '1' && $('.navigation a').hasClass('next') ) {
+                
+                var $container = $('#content');
+                
+                $('.home.blog .navigation').hide();
+                
+                // If blog layout grid, setup isotope.
+                if( agama.blog_layout == 'grid' ) {
+                    $container.isotope({
+                        itemSelector: '.article-wrapper'
+                    });
+                    var iso = $container.data('isotope');
+                    $( window ).smartresize(function(){
+                        $container.isotope({
+                            itemSelector: '.article-wrapper',
+                            masonry: { columnWidth: $container.width() / 5 }
+                        });
+                    });
+                }
+                
+                // If blog layout == list && infinite trigger == button.
+                if( agama.blog_layout == 'list' && agama.infinite_trigger == 'button' ) {
+                    var options = {
+                        path: '.navigation a.next',
+                        append: '.article-wrapper',
+                        button: '#infinite-loadmore',
+                        scrollThreshold: false,
+                        status: '.infscr-load-status',
+                        history: false
+                    };
+                }
+                // If blog layout == grid && infinite trigger == button.
+                else if( agama.blog_layout == 'grid' && agama.infinite_trigger == 'button' ) {
+                    var options = {
+                        path: '.navigation a.next',
+                        button: '#infinite-loadmore',
+                        scrollThreshold: false,
+                        append: '.article-wrapper',
+                        outlayer: iso,
+                        status: '.infscr-load-status',
+                        history: false
+                    };
+                }
+                // If blog layout == small_thumbs && infinite trigger == button.
+                else if ( agama.blog_layout == 'small_thumbs' && agama.infinite_trigger == 'button' ) {
+                    var options = {
+                        path: '.navigation a.next',
+                        append: '.article-wrapper',
+                        button: '#infinite-loadmore',
+                        scrollThreshold: false,
+                        status: '.infscr-load-status',
+                        history: false
+                    };
+                }
+                // If blog layout == list && infinite trigger == auto.
+                else if( agama.blog_layout == 'list' && agama.infinite_trigger == 'auto' ) {
+                    var options = {
+                        path: '.navigation a.next',
+                        append: '.article-wrapper',
+                        scrollThreshold: 50,
+                        status: '.infscr-load-status',
+                        history: false,
+                        debug: true
+                    };
+                }
+                // If blog layout == grid && infinite trigger == auto.
+                else if( agama.blog_layout == 'grid' && agama.infinite_trigger == 'auto' ) {
+                    var options = {
+                        path: '.navigation a.next',
+                        append: '.article-wrapper',
+                        outlayer: iso,
+                        scrollThreshold: 50,
+                        status: '.infscr-load-status',
+                        history: false,
+                        debug: true
+                    };
+                }
+                // If blog layout == small_thumbs && infinite trigger == auto.
+                else if( agama.blog_layout == 'small_thumbs' && agama.infinite_trigger == 'auto' ) {
+                    var options = {
+                        path: '.navigation a.next',
+                        append: '.article-wrapper',
+                        scrollThreshold: 50,
+                        status: '.infscr-load-status',
+                        history: false,
+                        debug: true
+                    };
+                }
+                $container.infiniteScroll(options);
             }
         },
 		

@@ -23,13 +23,13 @@
 define('DB_NAME', 'smartkeeper');
 
 /** MySQL database username */
-define('DB_USER', 'admin');
+define('DB_USER', 'root');
 
 /** MySQL database password */
-define('DB_PASSWORD', '123EWQasd');
+define('DB_PASSWORD', 'smartkeeper');
 
 /** MySQL hostname */
-define('DB_HOST', '140.125.33.31');
+define('DB_HOST', 'localhost');
 
 /** Database Charset to use in creating database tables. */
 define('DB_CHARSET', 'utf8mb4');
@@ -46,14 +46,14 @@ define('DB_COLLATE', '');
  *
  * @since 2.6.0
  */
-define('AUTH_KEY',         'ZzO23p``KJ]p5h8&~9iL,7WnT_,;~i!_2}x27x/3<!JLpbb4gu+SC.,68(,v)tAa');
-define('SECURE_AUTH_KEY',  '3oc8,eRHT<rGQ#I;v{)(;{*FcC#PK<CJA{PZw^uUAat uv^ew8xCo/LD?5d-tZRl');
-define('LOGGED_IN_KEY',    '^hsW3H<Rzo/j?H`B99alJuOkv+s.fCL6TWoD2W.Mytyyk@Pbv%pY45k,%Z(`/=|{');
-define('NONCE_KEY',        '~UQ)@p7Y Zj9~srIFHH=ah:2@F{%VFv7FK}4gq+xs/O02;7Rgs$N>H@<6~*5Fg8L');
-define('AUTH_SALT',        '16TunM$7(qaie&*tuYlZcLD~aWqiCI)rkFtT}jq/5A!<5l@l3T`{qydhs mu@iq,');
-define('SECURE_AUTH_SALT', '?2>_0Vi+CM5<1pdFh#-drk2ROJfJ7MVojJky=n(pQm+*j?DEzga2( a4H*[PDeKx');
-define('LOGGED_IN_SALT',   'QibsX#Nd*pZ^{V{ZajL3G?=@oQ415i)DZ,6a<4%ijXYx.32)<&+AI%Eva@w`g=M<');
-define('NONCE_SALT',       'g;`_Jh>$vACaJcGw56;0h}I!7b,o#hA(u4+bdA5QG*{xW~! pca}o]i)W%&@dZp@');
+define('AUTH_KEY',         '&D%!3%WD(#aR_Ji5xZwi!7Y{Jlae]k/UKl,RKmDcEI4^Vy{*Ch85<Mw)FIv{ A0U');
+define('SECURE_AUTH_KEY',  '!YYL%*M8e5CWh:m=%3Xhcx=)aok.q54ycpW_X+(`B$*./*2M}]m7V3PHgR$kIm>y');
+define('LOGGED_IN_KEY',    'A,XpFQIdM);r-RK$n]_#1`}g+rc.i@nI-:i,:u({KTLG IDd~AhD[*^N;|1v;c,~');
+define('NONCE_KEY',        '*n{J`J:w=u.:gcp$51C3j[v?~55>4V#m=TUcLb%Urh!@qmn:Qq<$Z4GHJol,!G,$');
+define('AUTH_SALT',        'qEKy&g10>P~e?bqrr~LBU^(,RRe$q8fn1Gb|h))e0-Fee)3f9I( n]}aq~NrE2xE');
+define('SECURE_AUTH_SALT', 'cmWradYDa{>~l`fDz{9_1$+~fq]76I_/RK~!Ba^Q ),Zv%Yao2?=`CZRQ+^JL.E^');
+define('LOGGED_IN_SALT',   '-%jMD(?r[@Zt&OjWfxC4vkhf]I+PlHc3{Bk,vvU[#pf(n%jt|Vc;,)- v{~luxZz');
+define('NONCE_SALT',       'zJC_NbMnQumuaDu&je]H{5HNd+[cJs2*q-VR&~)DA7=HI+;-ato K!Q(nKh4 T6?');
 
 /**#@-*/
 

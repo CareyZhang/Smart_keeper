@@ -4,10 +4,10 @@
  Author: Theme Vision
  Author URI: http://theme-vision.com/
  Description: Agama is a free Multi-Purpose WordPress theme. It’s perfect for web agency business, corporate business, personal and parallax business portfolio, photography sites and freelancer. Is built on BootStrap with parallax support, is responsive, clean, modern, flat and minimal. Agama is e-commerce (WooCommerce) Compatible, WPML, RTL, Retina-Ready, SEO Friendly and with parallax. 3 Superb header variations. Check demo: http://demo.theme-vision.com
- Version: 1.3.5
+ Version: 1.3.7.3
  License: GNU General Public License v2 or later
  License URI: http://www.gnu.org/licenses/gpl-2.0.html
- Tags: one-column, two-columns, right-sidebar, left-sidebar, grid-layout, flexible-header, accessibility-ready, buddypress, custom-background, custom-header, custom-logo, custom-menu, custom-colors, editor-style, featured-image-header, featured-images, full-width-template, footer-widgets, microformats, post-formats, rtl-language-support, sticky-post, theme-options, threaded-comments, translation-ready, education, entertainment, holiday
+ Tags: one-column, two-columns, right-sidebar, left-sidebar, grid-layout, flexible-header, buddypress, custom-background, custom-header, custom-logo, custom-menu, custom-colors, editor-style, featured-image-header, featured-images, full-width-template, footer-widgets, microformats, post-formats, rtl-language-support, sticky-post, theme-options, threaded-comments, translation-ready, education, entertainment, photography
  Text Domain: agama
 */
 
@@ -402,6 +402,16 @@ body.stretched .container-fullwidth .breadcrumb { right: 60px !important; }
     height: auto;
     display: block;
     margin: auto auto 15px auto;
+}
+#frontpage-boxes h1 {
+    display: block;
+    font-size: 19px;
+    font-weight: 700;
+	text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 50px;
+    color: #333;
 }
 #frontpage-boxes h2 {
     font-size: 16px;
@@ -1330,6 +1340,11 @@ header#masthead nav:not(.mobile-menu) ul li ul.sub-menu li ul.sub-menu li:hover 
 	border-right: 3px;
 	border-right-style: solid;
 }
+header#masthead nav:not(.mobile-menu) ul li ul.sub-menu li ul.sub-menu {
+  position: absolute;
+  left: 100%;
+  top: 0;
+}
 
 /* = Sticky Header (V1 - V3) Navigation
  *------------------------------------------------------------- */
@@ -2023,8 +2038,7 @@ body.sidebar-left #primary.col-md-9 {
 body:not(.blog-grid).sidebar-left #primary #content {
 	float: right;
 }
-body.blog-grid.sidebar-left #primary #content,
-body.blog-grid.sidebar-left #infinite-loadmore {
+body.blog-grid.sidebar-left #primary #content {
 	margin-left: 50px;
 }
 
@@ -2750,13 +2764,69 @@ div.small-thumbs #content p {
 
 /* = Infinite Scroll
 -------------------------------------------------------------- */
-body:not(.blog-small-thumbs):not(.blog-grid) #infinite-loadmore {
-	margin: 20px auto;
+.infscr-load-status {
+    display: none;
+    padding-top: 20px;
+    text-align: center;
+    color: #777
 }
-#infscr-loading {
-	text-align: center;
-	margin-bottom: 50px;
-	clear: both;
+.loader-ellips {
+    font-size: 20px;
+    position: relative;
+    width: 4em;
+    height: 1em;
+    margin: 10px auto
+}
+
+.loader-ellips__dot {
+    display: block;
+    width: 1em;
+    height: 1em;
+    border-radius: .5em;
+    background: #555;
+    position: absolute;
+    animation-duration: .5s;
+    animation-timing-function: ease;
+    animation-iteration-count: infinite
+}
+
+.loader-ellips__dot:nth-child(1),
+.loader-ellips__dot:nth-child(2) {
+    left: 0
+}
+
+.loader-ellips__dot:nth-child(3) {
+    left: 1.5em
+}
+
+@keyframes reveal {
+    from {
+        transform: scale(.001)
+    }
+    to {
+        transform: scale(1)
+    }
+}
+
+@keyframes slide {
+    to {
+        transform: translateX(1.5em)
+    }
+}
+
+.loader-ellips__dot:nth-child(1) {
+    animation-name: reveal
+}
+
+.loader-ellips__dot:nth-child(2),
+.loader-ellips__dot:nth-child(3) {
+    animation-name: slide
+}
+
+.loader-ellips__dot:nth-child(4) {
+    left: 3em;
+    animation-name: reveal;
+    animation-direction: reverse
 }
 
 /* =Archives
@@ -3258,9 +3328,156 @@ body:not(.device-touch) .tagcloud a {
 	text-align: right;
 }
 
-/* =Plugins
+/* = Share Icons
 ----------------------------------------------- */
+.i-bordered,
+.i-circled,
+.i-plain,
+.i-rounded,
+.social-icon {
+    display: block;
+    float: left;
+    margin: 4px 11px 7px 0;
+    text-align: center!important;
+    font-size: 28px;
+    color: #FFF;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, .3);
+    cursor: pointer;
+    font-style: normal
+}
+.social-icon {
+    margin: 0 5px 5px 0;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    line-height: 38px !important;
+    color: #555;
+    text-shadow: none;
+    border: 1px solid #AAA;
+    border-radius: 3px;
+    overflow: hidden
+}
+.si-rounded {
+    border-radius: 50%;
+}
+.si-borderless {
+    border-color: transparent !important;
+}
+.si-dark,
+.si-light {
+    border-color: transparent;
+}
+.si-dark {
+    background-color: #444;
+    color: #FFF !important;
+}
+.si-light {
+    background-color: rgba(0, 0, 0, .05);
+    color: #666 !important;
+}
+.si-colored {
+    border-color: transparent !important;
+}
+.si-colored.social-icon,
+.social-icon:hover {
+    border-color: transparent;
+}
+.si-colored i {
+    color: #FFF;
+}
+.social-icon.si-large {
+    margin: 0 10px 10px 0;
+    width: 56px;
+    height: 56px;
+    font-size: 30px;
+    line-height: 54px !important;
+}
+.social-icon.si-small {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    line-height: 30px !important;
+}
+.social-icon i {
+    display: block;
+    position: relative;
+    padding: 10px 0
+}
+body:not(.device-touch) .social-icon i {
+    -webkit-transition: all .3s ease;
+    -o-transition: all .3s ease;
+    transition: all .3s ease
+}
 
+.social-icon i:last-child {
+    color: #FFF !important;
+}
+
+.social-icon:hover i:first-child {
+    margin-top: -38px;
+}
+
+.social-icon.si-large:hover i:first-child {
+    margin-top: -54px;
+}
+
+.social-icon.si-small:hover i:first-child {
+    margin-top: -30px;
+}
+
+.social-icon:hover {
+    color: #555;
+}
+.si-share {
+    padding-left: 5px;
+    border-top: 1px solid #EEE;
+    margin: 30px 0;
+    border-bottom: 1px solid #EEE;
+    clear: both
+}
+.si-share span {
+    line-height: 36px;
+    font-weight: 700;
+    font-size: 13px
+}
+.si-share div {
+    float: right
+}
+.si-share .social-icon {
+    margin: -2px 0;
+    border-radius: 0
+}
+.si-colored.si-facebook,
+.si-facebook:hover {
+    background-color: #3B5998;
+}
+.si-colored.si-twitter,
+.si-twitter:hover {
+    background-color: #00ACEE;
+}
+.si-colored.si-pinterest,
+.si-pinterest:hover {
+    background-color: #C8232C;
+}
+.si-colored.si-gplus,
+.si-gplus:hover {
+    background-color: #DD4B39;
+}
+.si-colored.si-linkedin,
+.si-linkedin:hover {
+    background-color: #0E76A8;
+}
+.si-colored.si-rss,
+.si-rss:hover {
+    background-color: #EE802F;
+}
+.si-colored.si-email,
+.si-email:hover {
+    background-color: #6567A5 !important;
+}
+
+/* = Third Party Plugins
+----------------------------------------------- */
 img#wpstats {
 	display: block;
 	margin: 0 auto 24px;
@@ -3268,7 +3485,7 @@ img#wpstats {
 }
 
 
-/* =Media queries
+/* = Media queries
 -------------------------------------------------------------- */
 
 /* Does the same thing as <meta name="viewport" content="width=device-width">,
@@ -3328,8 +3545,7 @@ img#wpstats {
     body:not(.blog-grid).sidebar-left #primary #content {
         float: none;
     }
-    body.blog-grid.sidebar-left #primary #content, 
-    body.blog-grid.sidebar-left #infinite-loadmore {
+    body.blog-grid.sidebar-left #primary #content {
         margin-left: 0;
     }
     #secondary.widget-area {
@@ -3505,6 +3721,7 @@ img#wpstats {
 	}
 	.main-navigation li a,
 	.main-navigation li {
+		display: inline-block;
 		text-decoration: none;
 	}
 	.nav-menu > li.menu-item-has-children > a:after {

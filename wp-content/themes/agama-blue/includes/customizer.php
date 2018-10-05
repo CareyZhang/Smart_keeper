@@ -25,41 +25,28 @@ Kirki::add_config( 'agama_blue_options', array(
     'capability'  => 'edit_theme_options'
 ) );
 Kirki::add_panel( 'agama_blue_theme_options_panel', array(
-    'title'     => __( 'Agama Blue Options', 'agama-blue' ),
-    'priority'  => 135
+    'title'     => esc_html__( 'Agama Blue Options', 'agama-blue' ),
+    'priority'  => 2
 ) );
 Kirki::add_section( 'agama_blue_blog_section', array(
-    'title'     => __( 'Blog', 'agama-blue' ),
+    'title'     => esc_html__( 'Blog', 'agama-blue' ),
     'panel'     => 'agama_blue_theme_options_panel'
 ) );
 Kirki::add_field( 'agama_blue_options', array(
-    'label'     => __( 'Enable', 'agama-blue' ),
-    'tooltip'   => __( 'Enable blog feature on home page.', 'agama-blue' ),
+    'label'     => esc_html__( 'Enable', 'agama-blue' ),
+    'tooltip'   => esc_html__( 'Enable blog section on home page.', 'agama-blue' ),
     'settings'  => 'agama_blue_blog',
     'section'   => 'agama_blue_blog_section',
     'type'      => 'switch',
     'default'   => true
 ) );
 Kirki::add_field( 'agama_blue_options', array(
-    'label'     => __( 'Heading Title', 'agama-blue' ),
-    'tooltip'   => __( 'Set custom blog heading title.', 'agama-blue' ),
+    'label'     => esc_html__( 'Heading Title', 'agama-blue' ),
+    'tooltip'   => esc_html__( 'Set blog section heading title.', 'agama-blue' ),
     'settings'  => 'agama_blue_blog_heading',
     'section'   => 'agama_blue_blog_section',
     'type'      => 'text',
-    'default'   => __( 'Latest from the Blog', 'agama-blue' )
-) );
-Kirki::add_field( 'agama_blue_options', array(
-    'label'     => __( 'Posts per Page', 'agama-blue' ),
-    'tooltip'   => __( 'Set how many blog posts to display per page.', 'agama-blue' ),
-    'settings'  => 'agama_blue_blog_posts_number',
-    'section'   => 'agama_blue_blog_section',
-    'type'      => 'slider',
-    'choices'   => array(
-        'min'   => 1,
-        'max'   => 36,
-        'step'  => 1
-    ),
-    'default'   => '4'
+    'default'   => esc_html__( 'Latest from the Blog', 'agama-blue' )
 ) );
 
 /**
@@ -103,13 +90,6 @@ function agama_blue_customize_styles_support() { ?>
 #accordion-panel-agama_blue_theme_options_panel h3:before {
     font-family: FontAwesome;
     content: '\f013';
-}
-#customize-theme-controls #accordion-panel-agama_blue_theme_options_panel .accordion-section-title {
-	background-color: rgba(0, 164, 208, 0.9) !important;
-	color: #FFF;
-}
-#customize-theme-controls #accordion-panel-agama_blue_theme_options_panel .accordion-section-title:after {
-	color: #FFF;
 }
 </style>
 <?php } ?>

@@ -53,9 +53,11 @@ get_header(); ?>
                         <?php if( get_the_tags() ): ?>
 						<!-- Tags -->
 						<div class="tagcloud clearfix bottommargin">
-							<i class="fa fa-tags"></i> <?php the_tags(false, false, false); ?>
+							<i class="fa fa-tags"></i> <?php the_tags( false, false, false ); ?>
 						</div><!-- Tags End -->
                         <?php endif; ?>
+                        
+                        <?php do_action( 'agama_social_share' ); ?>
 
 						<?php wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'agama' ), 'after' => '</div>' ) ); ?>
 						

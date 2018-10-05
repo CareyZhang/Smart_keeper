@@ -29,8 +29,11 @@ if( ! defined( 'ABSPATH' ) ) {
 
 		<div class="entry-content">
 			<?php the_content(); ?>
-			<?php wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'agama' ), 'after' => '</div>' ) ); ?>
+			<?php wp_link_pages( array( 'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'agama' ), 'after' => '</div>' ) ); ?>
 		</div>
+        
+        <?php do_action( 'agama_social_share' ); ?>
+        
 		<footer class="entry-meta">
 			<?php edit_post_link( __( 'Edit', 'agama' ), '<span class="edit-link">', '</span>' ); ?>
 		</footer>

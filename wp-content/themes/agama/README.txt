@@ -1,7 +1,44 @@
-Agama WordPress Theme, Copyright 2015 - 2018 Theme-Vision.com
+Agama WordPress Theme, Copyright 2015 - 2018 theme-vision.com
 Agama is distributed under the terms of the GNU GPL2
 
 ####################### Changelog ######################
+
+= 1.3.7.3 - 06 September 2018 =
+* Minor changes.
+
+= 1.3.7.2 - 30 August 2018 =
+* Minor changes.
+* Updated theme language files.
+
+= 1.3.7.1 - 25 August 2018 =
+* Fixed Google+ social share icon default parameter bug.
+
+= 1.3.7 - 25 August 2018 =
+* Updated infinite scroll to newest version.
+* Updated Isotope JS to latest version.
+* Updated NiceScroll JS to latest version.
+* Added framework/agama-actions.php file.
+* Added framework/agama-filters.php file.
+* Added detect child theme and enqueue child theme stylesheet.
+* Added front page boxes heading feature (Customize->Front Page Boxes->General).
+* Added footer social icons color feature (Customizer->Footer->Styling).
+* Added footer site info links color feature (Customizer->Footer->styling).
+* Added social share for posts & pages feature.
+* Fixed blog infinite scrool not working for child theme bug.
+* Fixed navigation 3rd-4th sub menu bug.
+* Removed includes folder and agama_custom_header.php file.
+* Removed font enqueueing (Customizer loads it by default).
+* Removed "get_agama_blue_contents" helper function (not needed anymore).
+* Removed "framework/class-agama-framework.php" file (Moved part of code to functions.php & part of code to class-agama-core.php files).
+
+= 1.3.6.1 - 17 August 2018 =
+* Front page boxes disabled by default (Theme review rules).
+* Updated theme language files.
+
+= 1.3.6 - 15 August 2018 =
+* Minor customizer changes related to pro features.
+* Removed agama favicon feature (same feature already is build in WordPress itself).
+* Removed function for backwards compatibility for title tag.
 
 = 1.3.5 - 06 July 2018 =
 * Added plugin (TGM) installation recommendations feature.

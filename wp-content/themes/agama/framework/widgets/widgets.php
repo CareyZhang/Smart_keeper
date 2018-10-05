@@ -8,15 +8,25 @@ if( ! defined( 'ABSPATH' ) ) {
 /**
  * Register Widgets & Sidebars
  * 
- * @since Agama v1.0
+ * @since 1.0
  */
 if( ! class_exists( 'Agama_Widgets' ) ) {
-	class Agama_Widgets
-	{
+	class Agama_Widgets {
+        
+        /**
+         * Class Constructor
+         */
 		public function __construct() {
-			add_action( 'widgets_init', array( $this, 'init' ) );
+			
+            add_action( 'widgets_init', array( $this, 'init' ) );
+            
 		}
 		
+        /**
+         * Register Widgets
+         *
+         * @since 1.0
+         */
 		function init() {
 			register_sidebar( array(
 				'name' => __( 'Main Sidebar', 'agama' ),
@@ -71,3 +81,5 @@ if( ! class_exists( 'Agama_Widgets' ) ) {
 	}
 	new Agama_Widgets;
 }
+
+/* Omit closing PHP tag to avoid "Headers already sent" issues. */
