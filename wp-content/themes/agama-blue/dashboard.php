@@ -20,4 +20,7 @@ global $wp_query; ?>
 
 <?php get_header(); ?>
 
+<<<<<<< HEAD
+=======
 <?php get_footer(); ?>
+>>>>>>> 907158abe79be1c43da63afe27d0e3c5daae317c
