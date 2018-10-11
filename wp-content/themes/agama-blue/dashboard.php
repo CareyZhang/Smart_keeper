@@ -18,6 +18,7 @@ if( ! defined( 'ABSPATH' ) ) {
 
 global $wp_query; ?>
 
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="http://10.3.141.1/wp-includes/css/bootstrap/bootstrap.min.css" rel="stylesheet">
 <link href="http://10.3.141.1/wp-includes/css/bootstrap/bootstrap-select.min.css" rel="stylesheet">
 <script src="http://10.3.141.1/wp-includes/js/bootstrap/bootstrap.min.js"></script>
@@ -28,6 +29,54 @@ global $wp_query; ?>
 <script src="http://10.3.141.1/wp-includes/js/highchart/indicators.js"></script>
 <script src="http://10.3.141.1/wp-includes/js/highchart/mfi.js"></script>
 <style>
+.cover
+{
+	z-index:9999;
+}
+#cover
+{
+	width:100%;
+	height:auto;
+	position:fixed; top:0px; right:0px; bottom:0px; left:0px;
+	background:rgba(255,255,255,0.8);
+	display:none;
+}
+#clo
+{
+	width:50px;
+	height:50px;
+	border-radius:50px;
+	position:fixed; top:0px; right:0px;
+	background:rgba(0,0,0,0.9);
+	font-size:36px;
+	text-align:center;
+	line-height:50px;
+	cursor:pointer;
+}
+#dev_content
+{
+	width:80%;
+	height:auto;
+	color:#000;
+	padding-top:50px;
+	font-size:36px;
+}
+#dev_name
+{
+	width:100%;
+	height:50px;
+}
+#dev_status_chart
+{
+	width:100%;
+	padding-top:50px;
+	height:450px;
+}
+#dev_switch
+{
+	width:100%;
+	height:100px;
+}
 .div_container
 {
 	width:100%;
@@ -82,7 +131,7 @@ global $wp_query; ?>
 }
 .device_status_div
 {
-	width:100px;
+	width:100%;
 	height:auto;
 }
 </style>
@@ -94,6 +143,7 @@ $(function(){
 	this_month_free_calculate();
 	current_energy_used_calculate();
 	total_energy_used_calculate();
+	get_device_status();
 });
 
 function get_limit_free()
@@ -282,6 +332,140 @@ function total_energy_used_calculate()
 	});
 }
 
+function get_device_status()
+{
+	var dev = [];
+	$.getJSON("http://10.3.141.1:1880/data?sql=select * from wp_sensor_data inner join wp_dev on wp_sensor_data._dev_id=wp_dev._id group by _dev_id having max(_time) and _type=0 order by _id",function(data){
+		data.forEach(function(point){
+			$("#device_table_append").append("<tr><th scope='row'>"+point._id+"</th><td id='dev_name"+point._id+"'>"+point._name+"</td><td id='dev_status"+point._id+"'>"+(point._status==0?"Off":"On")+"</td><td id='dev_current_used"+point._id+"'>"+point._data+"W</td><td id='operate_time"+point._id+"'>"+(point._stauts==0?unix_stamp_to_date(point._current_disconnect_time*1):unix_stamp_to_date(point._current_connect_time*1))+"</td><td id='used_time"+point._id+"'>"+(point._status!=0?get_used_time(Date.now()-point._current_connect_time*1):"-")+"</td><td id='dev_switch"+point._id+"'><a style='cursor:pointer;' onclick='dev_switch("+point._id+","+point._status+")'>"+(point._status==0?"開啟裝置":"關閉裝置")+"</a></td><td><a style='cursor:pointer;' onclick='device_management("+point._id+")'>Click here...</a></td></tr>");
+		});
+	});
+}
+
+function dev_switch(_id,dev_status)
+{
+	var signal=(dev_status==0?1:0);
+	console.log(signal);
+}
+
+function device_management(_id)
+{
+	var name = $("#dev_name"+_id).text();
+	$("#dev_name").html("<a style='cursor:pointer;' onclick='dev_rename("+_id+")'>"+name+"</a>");
+	show_device_status_chart(_id);
+	$("#cover").fadeIn(1000);
+}
+
+function dev_rename(_id)
+{
+	var name = $("#dev_name"+_id).text();
+	$("#dev_name").html("<center><input type='text' class='input-lg' placeholder='請輸入裝置名稱' id='rename' value='"+name+"'><br><button class='btn btn-default' onclick='confirm_rename("+_id+")'>更改</button></center>");
+}
+
+function confirm_rename(_id)
+{
+	var name = $("#rename").val()
+		$.getJSON("http://10.3.141.1:1880/data?sql=update wp_dev set _name='"+name+"' where _id="+_id+"");
+	$("#dev_name").html("<a style='cursor:pointer;' onclick='dev_rename("+_id+")'>"+name+"</a>");
+	$("#dev_name"+_id).text(name);
+}
+
+function show_device_status_chart(_id)
+{
+	$.getJSON("http://10.3.141.1:1880/data?sql=select * from wp_sensor_data where _type=0 and _dev_id="+_id,function(data){
+		var sensor_data_energy = [];
+		function tonum(num)
+		{
+			if(num)
+				return parseFloat(num);
+			else
+				return null;
+		}
+		var d = new Date();
+		var n = d.getTimezoneOffset()*60*1000;
+		data.forEach(function(point){
+			sensor_data_energy.push([point._time-n,point._data*1]);
+		});
+		Highcharts.stockChart('dev_status_chart',{
+			rangeSelector:{
+				selected:1
+			},
+			title:{
+				text:'用電狀態'
+			},
+			yAxis:[{
+				labels:{
+					align:'left'
+				},
+				title:{
+					text:'裝置耗電量'
+				},
+				height: '100%',
+				lineWidth:2
+			}],
+			tooltip:{
+				split:true,
+				valueDecimals:2
+			},
+			series:[{
+				type:'line',
+				id:'energy',
+				name:'用量',
+				data:sensor_data_energy,
+				marker:{
+					enabled:false
+				},
+				params:{
+					period:14
+				}
+			}]
+		});
+	});
+}
+
+function clos()
+{
+	$("#cover").fadeOut(1000);
+}
+
+function get_used_time(UNIX_timestamp)
+{
+	UNIX_timestamp/=1000;
+	var days = Math.floor(UNIX_timestamp/86400);
+	var hours = Math.floor((UNIX_timestamp-days*86400)/3600);
+	var minutes = Math.floor((UNIX_timestamp-days*86400-hours*3600)/60);
+	var time="";
+	if(UNIX_timestamp<60)
+	{
+		return "Without 1 minute."
+	}
+	if(days>1)
+	{
+		time=time.concat(days," days ");
+	}
+	else if(days==1)
+	{
+		time=time.concat(days," day ");
+	}
+	if(hours>1)
+	{
+		time=time.concat(hours," hours ");
+	}
+	else if(hours==1)
+	{
+		time=time.concat(hours," hour ");
+	}
+	if(minutes>1)
+	{
+		time=time.concat(minutes," minutes");
+	}
+	else if(minutes==1)
+	{
+		time=time.concat(minutes," minute");
+	}
+	return time;
+}
+
 function unix_stamp_to_hour(UNIX_timestamp)
 {
 	var a = new Date(UNIX_timestamp)
@@ -296,7 +480,7 @@ function unix_stamp_to_hour(UNIX_timestamp)
 
 function unix_stamp_to_date(UNIX_timestamp)
 {
-	var a = new Date(UNIX_timestamp*1000);
+	var a = new Date(UNIX_timestamp);
 	var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 	var year = a.getFullYear();
 	var month = months[a.getMonth()];
@@ -324,7 +508,14 @@ function get_this_date_unix_stamp()
 </script>
 
 <?php get_header(); ?>
-
+<div class="cover" id="cover" align="center">
+	<div class="cover" id="clo" onclick="clos()">X</div>
+	<div class="cover" id="dev_content">
+		<div class="cover" id="dev_name"></div>
+		<div class="cover" id="dev_status_chart"></div>
+		<div class="cover" id="dev_switch"></div>
+	</div>
+</div>
 <div class="div_container">
 	<div class="div_left">
 		<div class="this_month_free_div">
@@ -355,8 +546,28 @@ function get_this_date_unix_stamp()
 	</div>
 
 	<div class="div_bottom">
-		<div class="device_status_div">
-			<span>裝置狀態</span>
-		</div>
+		<center>
+			<div class="device_status_div" style="padding:20px 0px;">
+				<span style="font-size:24px;">所有裝置狀態</span>
+				<div id="device_status_container" style="width:100%; height:auto;">
+					<table class="table table-dark" style="width:100%; height:auto; margin-top:20px;" align="center">
+						<thead>
+							<tr>
+								<th scope="col">裝置代號</th>
+								<th scope="col">裝置名稱</th>
+								<th scope="col">裝置狀態(On/Off)</th>
+								<th scope="col">目前耗電量</th>
+								<th scope="col">開啟/關閉時間</th>
+								<th scope="col">用電時長</th>
+								<th scope="col">開關裝置</th>
+								<th scope="col">管理設備</th>
+							</tr>
+						</thead>
+						<tbody id="device_table_append">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</center>
 	</div>
 </div>
