@@ -16,14 +16,26 @@ if( ! defined( 'ABSPATH' ) ) {
     exit;
 } 
 
-global $wp_query; ?>
+global $wp_query;
+?>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!--Bootstrap's css-->
 <link href="http://10.3.141.1/wp-includes/css/bootstrap/bootstrap.min.css" rel="stylesheet">
-<link href="http://10.3.141.1/wp-includes/css/bootstrap/bootstrap-select.min.css" rel="stylesheet">
+<link href="http://10.3.141.1/wp-includes/css/bootstrap/bootstrap-select.min.css" rel=stylesheet">
+<!--Datetimepicker's css-->
+<link href="http://10.3.141.1/wp-includes/css/datetimepicker/datetimepicker.min.css" rel="stylesheet">
+<!--JQuery-->
+<script src="http://10.3.141.1/wp-includes/js/jquery/jquery-3.3.1.min.js"></script>
+<!--Socket.IO js-->
+<script src="http://10.3.141.1/wp-includes/js/socketio/socket.io.js"></script>
+<!--Bootstrap's js-->
 <script src="http://10.3.141.1/wp-includes/js/bootstrap/bootstrap.min.js"></script>
 <script src="http://10.3.141.1/wp-includes/js/bootstrap/bootstrap-select.min.js"></script>
-<script src="http://10.3.141.1/wp-includes/js/jquery/jquery-3.3.1.min.js"></script>
+<!--Datetimepicker's js-->
+<script src="http://10.3.141.1/wp-includes/js/moment.js"></script>
+<script src="http://10.3.141.1/wp-includes/js/datetimepicker/datetimepicker.min.js"></script>
+<!--HighChart's js-->
 <script src="http://10.3.141.1/wp-includes/js/highchart/highstock.js"></script>
 <script src="http://10.3.141.1/wp-includes/js/highchart/exporting.js"></script>
 <script src="http://10.3.141.1/wp-includes/js/highchart/indicators.js"></script>
@@ -138,6 +150,7 @@ global $wp_query; ?>
 <script>
 var energy_free = 3;
 var limit_free;
+var socket = io.connect('http://10.3.141.1:9090');
 $(function(){
 	get_limit_free();
 	this_month_free_calculate();
@@ -162,7 +175,7 @@ function current_energy_used_calculate()
 {
 	var total = 0;
 	var d=get_this_date_unix_stamp();
-	var addr = "http://10.3.141.1:1880/data?sql=select * from wp_sensor_total";
+	var addr = "http://10.3.141.1:1880/data?sql=select * from wp_sensor_total where start_time>=".concat(d);
 	$.getJSON(addr,function(data){
 		var hour_sensor_data_energy = [];
 		var hour_group = new Array();
@@ -171,11 +184,8 @@ function current_energy_used_calculate()
 			hour_group[i]=0;
 		}
 		data.forEach(function(point){
-			if(point.start_time>=d)
-			{
-				var group_index = Math.floor((point.start_time-d)/3600000);
-				hour_group[group_index] += point.total_used;
-			}
+			var group_index = Math.floor((point.start_time-d)/3600000);
+			hour_group[group_index] += point.total_used;
 		});
 		for(var i=0;i<24;i++)
 		{
@@ -222,15 +232,12 @@ function this_month_free_calculate()
 {
 	var total = 0;
 	var d = get_this_month_unix_stamp();
-	var addr = "http://10.3.141.1:1880/data?sql=select * from wp_sensor_total";
+	var addr = "http://10.3.141.1:1880/data?sql=select * from wp_sensor_total where start_time>=".concat(d);
 	$.getJSON(addr,function(data){
 		data.forEach(function(point){
-			if(point.start_time>=d)
-			{
-				total += point.total_used*1
-			}
+			total += point.total_used*1
 		});
-		var free = (total/60000)*energy_free;
+		var free = (total/1000)*energy_free;
 		var proportion;
 		var tmp;
 		if(free<=limit_free)	//in limit
@@ -307,7 +314,7 @@ function total_energy_used_calculate()
 					align: 'left',
 				},
 				title:{
-					text: '總耗電量'
+					text: '總耗電量(Whr)'
 				},
 				height: '100%',
 				lineWidth: 2
@@ -337,7 +344,7 @@ function get_device_status()
 	var dev = [];
 	$.getJSON("http://10.3.141.1:1880/data?sql=select * from wp_sensor_data inner join wp_dev on wp_sensor_data._dev_id=wp_dev._id group by _dev_id having max(_time) and _type=0 order by _id",function(data){
 		data.forEach(function(point){
-			$("#device_table_append").append("<tr><th scope='row'>"+point._id+"</th><td id='dev_name"+point._id+"'>"+point._name+"</td><td id='dev_status"+point._id+"'>"+(point._status==0?"Off":"On")+"</td><td id='dev_current_used"+point._id+"'>"+point._data+"W</td><td id='operate_time"+point._id+"'>"+(point._stauts==0?unix_stamp_to_date(point._current_disconnect_time*1):unix_stamp_to_date(point._current_connect_time*1))+"</td><td id='used_time"+point._id+"'>"+(point._status!=0?get_used_time(Date.now()-point._current_connect_time*1):"-")+"</td><td id='dev_switch"+point._id+"'><a style='cursor:pointer;' onclick='dev_switch("+point._id+","+point._status+")'>"+(point._status==0?"開啟裝置":"關閉裝置")+"</a></td><td><a style='cursor:pointer;' onclick='device_management("+point._id+")'>Click here...</a></td></tr>");
+			$("#device_table_append").append("<tr><th scope='row'>"+point._id+"</th><td id='dev_name"+point._id+"'>"+point._name+"</td><td id='dev_status"+point._id+"'>"+(point._status==0?"Off":"On")+"</td><td id='dev_current_used"+point._id+"'>"+(point._status==0?0:point._data)+"W</td><td id='operate_time"+point._id+"'>"+(point._stauts==0?unix_stamp_to_date(point._current_disconnect_time*1):unix_stamp_to_date(point._current_connect_time*1))+"</td><td id='used_time"+point._id+"'>"+(point._status!=0?get_used_time(Date.now()-point._current_connect_time*1):"-")+"</td><td id='dev_switch"+point._id+"'><a style='cursor:pointer;' onclick='dev_switch("+point._id+","+point._status+")'>"+(point._status==0?"開啟裝置":"關閉裝置")+"</a></td><td><a style='cursor:pointer;' onclick='device_management("+point._id+")'>Click here...</a></td></tr>");
 		});
 	});
 }
@@ -345,7 +352,11 @@ function get_device_status()
 function dev_switch(_id,dev_status)
 {
 	var signal=(dev_status==0?1:0);
-	console.log(signal);
+	var message = {
+		_dev_id: _id,
+		_signal: signal
+	};
+	socket.emit('remote_device',message);
 }
 
 function device_management(_id)
@@ -353,13 +364,38 @@ function device_management(_id)
 	var name = $("#dev_name"+_id).text();
 	$("#dev_name").html("<a style='cursor:pointer;' onclick='dev_rename("+_id+")'>"+name+"</a>");
 	show_device_status_chart(_id);
+	var timer_html=`<div class="col-sm-6">
+				<div class="form-group">
+					<div class="input-group date" id="datetimepicker" data-target-input="nearest">
+						<input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker">
+						<div class="input-group-append" data-target="#datetimepicker" data-toggle="datetimepicker">
+							<div class="input-group-text">
+								<i class="fa fa-calendar"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>`;
+	$("#dev_switch").html(timer_html);
+	$(function(){
+		$("#datetimepicker").datetimepicker();
+	});
 	$("#cover").fadeIn(1000);
 }
 
 function dev_rename(_id)
 {
 	var name = $("#dev_name"+_id).text();
-	$("#dev_name").html("<center><input type='text' class='input-lg' placeholder='請輸入裝置名稱' id='rename' value='"+name+"'><br><button class='btn btn-default' onclick='confirm_rename("+_id+")'>更改</button></center>");
+	var name_html = `<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text">裝置名稱</span>
+				</div>
+				<input type="text" class="form-control" id="rename" value="`+name+`" placeholder="請輸入裝置名稱">
+				<div class="input-group-append">
+				<span class="input-group-text btn btn-default" onclick="confirm_rename(`+_id+`)">更改</span>
+				</div>
+			</div>`;
+	$("#dev_name").html(name_html);
 }
 
 function confirm_rename(_id)
@@ -426,6 +462,15 @@ function show_device_status_chart(_id)
 function clos()
 {
 	$("#cover").fadeOut(1000);
+	var wait=setInterval(function(){
+		if(!$("#cover").is("animated"))
+		{
+			clearInterval(wait);
+			$("#dev_name").html("");
+			$("#dev_status_chart").html("");
+			$("#dev_switch").html("");
+		}
+	},1000);
 }
 
 function get_used_time(UNIX_timestamp)
@@ -550,7 +595,7 @@ function get_this_date_unix_stamp()
 			<div class="device_status_div" style="padding:20px 0px;">
 				<span style="font-size:24px;">所有裝置狀態</span>
 				<div id="device_status_container" style="width:100%; height:auto;">
-					<table class="table table-dark" style="width:100%; height:auto; margin-top:20px;" align="center">
+					<table class="table" style="width:100%; height:auto; margin-top:20px;" align="center">
 						<thead>
 							<tr>
 								<th scope="col">裝置代號</th>
