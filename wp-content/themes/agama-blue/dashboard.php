@@ -87,6 +87,7 @@ global $wp_query;
 #dev_switch
 {
 	width:100%;
+	padding-top:80px;
 	height:100px;
 }
 .div_container
@@ -367,10 +368,19 @@ function device_management(_id)
 	var timer_html=`<div class="col-sm-6">
 				<div class="form-group">
 					<div class="input-group date" id="datetimepicker" data-target-input="nearest">
-						<input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker">
-						<div class="input-group-append" data-target="#datetimepicker" data-toggle="datetimepicker">
-							<div class="input-group-text">
+						<div class="input-group-prepend">
+							<span class="input-group-text" data-target="#datetimepicker" data-toggle="datetimepicker">裝置定時開關</span>
+						</div>
+						<input type="text" class="form-control datetimepicker-input" id="timing_switch" data-target="#datetimepicker" data-toggle="datetimepicker">
+						<div class="input-group-append">
+							<div class="input-group-text" data-target="#datetimepicker" data-toggle="datetimepicker">
 								<i class="fa fa-calendar"></i>
+							</div>
+							<div class="input-group-text" onclick="dev_timing_switch(`+_id+`,1)">
+								<i class="btn btn-default">On</i>
+							</div>
+							<div class="input-group-text" onclick="dev_timing_switch(`+_id+`,0)">
+								<i class="btn btn-default">Off</i>
 							</div>
 						</div>
 					</div>
@@ -404,6 +414,12 @@ function confirm_rename(_id)
 		$.getJSON("http://10.3.141.1:1880/data?sql=update wp_dev set _name='"+name+"' where _id="+_id+"");
 	$("#dev_name").html("<a style='cursor:pointer;' onclick='dev_rename("+_id+")'>"+name+"</a>");
 	$("#dev_name"+_id).text(name);
+}
+
+function dev_timing_switch(_id,signal)
+{
+	var _time=Date.parse($("#timing_switch").val());
+	console.log(_time);
 }
 
 function show_device_status_chart(_id)
