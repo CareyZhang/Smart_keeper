@@ -25,6 +25,8 @@ global $wp_query;
 <link href="http://10.3.141.1/wp-includes/css/bootstrap/bootstrap-select.min.css" rel=stylesheet">
 <!--Datetimepicker's css-->
 <link href="http://10.3.141.1/wp-includes/css/datetimepicker/datetimepicker.min.css" rel="stylesheet">
+<!--chart js-->
+<script src="http://10.3.141.1/wp-includes/js/chartjs/Chart.min.js"></script>
 <!--JQuery-->
 <script src="http://10.3.141.1/wp-includes/js/jquery/jquery-3.3.1.min.js"></script>
 <!--Socket.IO js-->
@@ -239,48 +241,42 @@ function this_month_free_calculate()
 			total += point.total_used*1
 		});
 		var free = (total/1000)*energy_free;
-		var proportion;
-		var tmp;
-		if(free<=limit_free)	//in limit
+		var tmp,proportion,over_or_remain;
+		var _label=[],canv_color=[];
+		_label.push("目前電費 : "+free+" $");
+		if(free<=limit_free)
 		{
-			proportion = free/limit_free;
-			$("#proportion_div1").width(proportion*99+"%");
-			$("#proportion_div1").height(50);
-			$("#proportion_div1").css({"background":"rgb(0,128,0)"});
-			$("#proportion_div2").height(60);
-			$("#proportion_div2").css({"background":"rgb(200,200,200)"});
-			$("#proportion_div2").css({"padding-top":"80px"});
-			$("#proportion_div2").css({"font-size":"24px"});
-			$("#proportion_div2").html(free+"$");
-			$("#proportion_div3").width((1-proportion)*99+"%");
-			$("#proportion_div3").height(50);
-			$("#proportion_div3").css({"background":"rgb(0,255,0)"});
-			$("#proportion_div4").height(60);
-			$("#proportion_div4").css({"background":"rgb(200,200,200)"});
-			$("#proportion_div4").css({"padding-top":"80px"});
-			$("#proportion_div4").css({"font-size":"24px"});
-			$("#proportion_div4").html(limit_free+"$");
+			over_or_remain=limit_free-free;
+			_label.push("剩餘預算 : "+over_or_remain+" $");
+			canv_color.push("rgb(0,128,0)");
+			canv_color.push("rgb(0,255,0)");
 		}
-		else	//over limit
+		else
 		{
-			proportion = limit_free/free;
-			$("#proportion_div1").width(proportion*99+"%");
-			$("#proportion_div1").height(50);
-			$("#proportion_div1").css({"background":"rgb(255,0,0)"});
-			$("#proportion_div2").height(60);
-			$("#proportion_div2").css({"background":"rgb(200,200,200)"});
-			$("#proportion_div2").css({"padding-top":"80px"});
-			$("#proportion_div2").css({"font-size":"24px"});
-			$("#proportion_div2").html(limit_free+"$");
-			$("#proportion_div3").width((1-proportion)*99+"%");
-			$("#proportion_div3").height(50);
-			$("#proportion_div3").css({"background":"rgb(128,0,0)"});
-			$("#proportion_div4").height(60);
-			$("#proportion_div4").css({"background":"rgb(200,200,200)"});
-			$("#proportion_div4").css({"padding-top":"80px"});
-			$("#proportion_div4").css({"font-size":"24px"});
-			$("#proportion_div4").html(free+"%");
+			over_or_remain=limit_free;
+			_label.push("預算 : "+limit_free+" $");
+			canv_color.push("rgb(255,140,0)");
+			canv_color.push("rgb(255,0,0)");
 		}
+		var remain_budget=limit_free-free;
+		new Chart(document.getElementById("this_month_free_canv"),{
+			type:'doughnut',
+			data:{
+				labels:_label,
+				datasets:[{
+					label:"$",
+					backgroundColor:canv_color,
+					data:[free,over_or_remain]
+				}]
+			},
+			options:{
+				title:{
+					display:true,
+					text:"本月電費統計"
+				},
+				maintainAspectRatio:false
+			}
+		});
 	});
 }
 
@@ -357,7 +353,7 @@ function dev_switch(_id,dev_status)
 		_dev_id: _id,
 		_signal: signal
 	};
-	socket.emit('remote_device',message);
+	socket.emit('remote_dev_without_timing',message);
 }
 
 function device_management(_id)
@@ -419,7 +415,12 @@ function confirm_rename(_id)
 function dev_timing_switch(_id,signal)
 {
 	var _time=Date.parse($("#timing_switch").val());
-	console.log(_time);
+	var message={
+		id:_id,
+		signal:signal,
+		time:_time
+	};
+	socket.emit("remote_dev_with_timing",message);
 }
 
 function show_device_status_chart(_id)
@@ -581,14 +582,8 @@ function get_this_date_unix_stamp()
 	<div class="div_left">
 		<div class="this_month_free_div">
 			<center>
-				<span style="font-size:24px;">本月電費</span>
 				<div id="this_month_free" style="margin:20px 0px;">
-					<div id="free_proportion_div" style="width:80%; height:50px;">
-						<div id="proportion_div1" style="float:left;"></div>
-						<div id="proportion_div2" style="float:left; width:0.5%;"></div>
-						<div id="proportion_div3" style="float:left;"></div>
-						<div id="proportion_div4" style="float:left; width:0.5%;"></div>
-					</div>
+					<canvas id="this_month_free_canv" height="200"></canvas>
 				</div>
 			</center>
 		</div>
